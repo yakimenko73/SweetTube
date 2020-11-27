@@ -16,3 +16,6 @@ class RoomCreate(generics.CreateAPIView):
 	""" Класс представления страницы создания команты """
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
+
+def create(request):
+	return HttpResponse('Room created. Redicrect to rooms/id')

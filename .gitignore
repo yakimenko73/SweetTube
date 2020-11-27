@@ -8,3 +8,4 @@ room/migrations/__pycache__/
 rooms/migrations/__pycache__/
 .idea
 README.txt
+db.*

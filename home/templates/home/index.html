@@ -1,26 +1,134 @@
-<html>
-	<head>
-		<title>SweetTube</title>
-		<link rel="icon" type="image/png" href="/static/images/favicon.png">
-	</head>
-	<body>
-		<link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
-		<h1>
-			SweetTube
-		</h1>
-
-		<div style="position: left;">
-			<button>D</button>
-		</div>
-
-		<div style="position: left;">
-			<button>G</button>
-		</div> 
-
-		<div class="panel bw">
-			<button>Create room</button>
-			<button> Find room </button>
-		</div>
-
-	</body>
+<html lang="en">
+    <head>
+        <title>SweetTube - Watch YouTube Videos together</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="A simple platform where you can create rooms, manage permissions and chat while watching YouTube videos synchronized with your friends.">
+        <link rel="icon" type="image/png" href="/static/images/favicon.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
+	    <link rel="stylesheet" type="text/css" href="/static/style/main.css"/>
+	    <link rel="stylesheet" type="text/css" href="/static/style/normalize.css"/>
+    </head>
+    <body>
+        <audio class="audio-for-speech" src=""></audio>
+        <div class="translate-tooltip-mtz hidden">
+            <div class="header">
+                <div class="header-controls">
+                    <span class="sound-translate"></span>
+                        <span class="settings"></span>
+                </div>
+                <div class="translate-icons">
+                    <img class="from" src="">
+                    <img class="arrow" src="chrome-extension://hiidjliailpkjeigakikbfedlfijngih/images/right-arrow.png">
+                    <img class="to" src="">
+                </div>
+            </div>
+            <div class="translated-text">
+                <div class="words"></div>
+                <div class="sentences"></div>
+            </div>
+        </div>
+        <span class="translate-button-mtz hidden"></span>
+        <header>
+                    <a href="/">
+                        <p align=center>SweetTube</p>
+                    </a>
+        </header>
+        <main>
+                        <article>
+                            <style>
+                                article{
+                                    text-align: center;
+                                    font-size: 2.5em
+                                }
+                                article p{
+                                    margin: 8% 0 8% 0
+                                }.btn
+                                {
+                                    position: relative;
+                                    display: inline-block;
+                                    height: 120px;
+                                    line-height: 120px;
+                                    margin: 20px;
+                                    padding: 0 50px 0 50px;
+                                    box-sizing: border-box;
+                                    border-radius:50px;
+                                    transition:all .3s ease-in-out;
+                                    background-color:#0c0c0c;
+                                    min-width:45%;font-size:.9em
+                                }.btn:hover
+                                {
+                                    transform: scale(1.05);
+                                    color:#fff;
+                                    border-radius:60px;
+                                    text-shadow:0 0 15px rgba(255,255,255,.2)
+                                }.btn 
+                                a{
+                                    display:block;
+                                    width:100%;height:100%;
+                                    text-decoration:none;
+                                    white-space:nowrap;
+                                    color:#d4d4d4}.btn 
+                                    a:hover
+                                    {
+                                        text-decoration:none
+                                    }
+                                    @media only screen and (max-width:786px)
+                                    {.btn
+                                        {
+                                            border-radius:15px;
+                                            width:90%;
+                                            padding:0 5% 0 5%
+                                        }.btn:hover
+                                        {
+                                            transform:none;
+                                            border-radius:15px
+                                        }
+                                    }@media only screen and (max-width:650px)
+                                    {.btn
+                                        {
+                                            font-size:7vw
+                                        }
+                                    }
+                            </style>
+                            <p>Watch YouTube Videos together</p>
+                            <div class="btn">
+                                <a href="create">CREATE ROOM</a>
+                            </div>
+                            <p>OR</p>
+                            <div class="btn">
+                                <a href="rooms">BROWSE ROOMS</a>
+                            </div>
+                            <p></p>
+                        </article>
+        </main>
+        <footer>
+                        <div class="footer_wrapper">
+                            <aside class="footer_side scrollFade shrink" fadeto="grow">
+                                <div>
+                                    <p>© SweetTube.ua 2020</p>
+                                </div>
+                            </aside>
+                            <aside class="footer_social scrollFade shrink" fadeto="grow">
+                                <div>
+                                    <a href="https://discord.gg/3vMsnNSW" target="_blank">
+                                        <img src="static/images/discord_white.png">
+                                    </a>
+                                </div>
+                                    <div>
+                                        <a href="https://www.instagram.com/hetero.sexuell/" target="_blank">
+                                            <p>Instagram</p>
+                                        </a>
+                                    </div>
+                            </aside>
+                                <aside class="footer_side scrollFade shrink" fadeto="grow">
+                                    <div>
+                                        <p><a href="/contact">Contact</a></p>
+                                        <p><a href="/tom">Terms of Service</a></p>
+                                        <p><a href="/privacy">Privacy Policy</a></p>
+                                    </div>
+                                </aside>
+                        </div>
+        </footer>
+    </body>
 </html>

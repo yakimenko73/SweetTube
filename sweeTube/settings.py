@@ -72,7 +72,7 @@ TEMPLATES = [
 ]
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "home/static"),
+    os.path.join(BASE_DIR, "home/static/"),
 ]
 
 WSGI_APPLICATION = 'sweeTube.wsgi.application'

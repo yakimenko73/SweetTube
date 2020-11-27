@@ -14,3 +14,17 @@ def privacy(request):
 	return render(request, 'home/privacy.html', {
 		'error_message': "Something went wrong :( ",
 		})
+
+
+def contact(request):
+	""" Представление страницы контактов """
+	return render(request, 'home/contact.html', {
+		'error_message': "Something went wrong :( ",
+		})
+
+
+def terms_of_service(request):
+	""" Представление страницы условий использования """
+	return render(request, 'home/tom.html', {
+		'error_message': "Something went wrong :( ",
+		})
