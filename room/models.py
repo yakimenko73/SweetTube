@@ -16,7 +16,7 @@ def generate_unique_code():
 
 class Room(models.Model):
 	""" Модель описания комнаты """
-	code = models.CharField(max_length=8, default=0, unique=True)
+	code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	host = models.CharField(max_length=50, unique=True)
@@ -38,3 +38,6 @@ class Room(models.Model):
 	quest_can_skip = models.BooleanField(null=False, default=False)
 	quest_can_use_chat = models.BooleanField(null=False, default=False)
 	quest_can_kick = models.BooleanField(null=False, default=False)
+
+	def __str__(self):
+		return f"host: {self.host}, room-code: {self.code}"
