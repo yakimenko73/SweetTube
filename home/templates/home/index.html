@@ -5,9 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="A simple platform where you can create rooms, manage permissions and chat while watching YouTube videos synchronized with your friends.">
         <link rel="icon" type="image/png" href="/static/images/favicon.png">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
 	    <link rel="stylesheet" type="text/css" href="/static/style/style.css"/>
 	    <link rel="stylesheet" type="text/css" href="/static/style/normalize.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400">
+        <script src="static/js/app.js"></script>
     </head>
     <body>
         <audio class="audio-for-speech" src=""></audio>
@@ -30,74 +31,21 @@
         </div>
         <span class="translate-button-mtz hidden"></span>
         <header>
-                    <a href="/">
-                        <p align=center>SweetTube</p>
-                    </a>
+            <a href="/">
+                <p align=center>SweetTube</p>
+            </a>
         </header>
         <main>
-                        <article>
-                            <style>
-                                article{
-                                    text-align: center;
-                                    font-size: 2.5em
-                                }
-                                article p{
-                                    margin: 8% 0 8% 0
-                                }.btn
-                                {
-                                    position: relative;
-                                    display: inline-block;
-                                    height: 120px;
-                                    line-height: 120px;
-                                    margin: 20px;
-                                    padding: 0 50px 0 50px;
-                                    box-sizing: border-box;
-                                    border-radius:50px;
-                                    transition:all .3s ease-in-out;
-                                    background-color:#0c0c0c;
-                                    min-width:45%;font-size:.9em
-                                }.btn:hover
-                                {
-                                    transform: scale(1.05);
-                                    color:#fff;
-                                    border-radius:60px;
-                                    text-shadow:0 0 15px rgba(255,255,255,.2)
-                                }.btn 
-                                a{
-                                    display:block;
-                                    width:100%;height:100%;
-                                    text-decoration:none;
-                                    white-space:nowrap;
-                                    color:#d4d4d4}.btn 
-                                    a:hover
-                                    {
-                                        text-decoration:none
-                                    }
-                                    @media only screen and (max-width:786px)
-                                    {.btn
-                                        {
-                                            border-radius:15px;
-                                            width:90%;
-                                            padding:0 5% 0 5%
-                                        }.btn:hover
-                                        {
-                                            transform:none;
-                                            border-radius:15px
-                                        }
-                                    }@media only screen and (max-width:650px)
-                                    {.btn
-                                        {
-                                            font-size:7vw
-                                        }
-                                    }
-                            </style>
+             <article>
+                <style>article{text-align:center;font-size:2.5em}article p{margin:8% 0 8% 0}.btn{position:relative;display:inline-block;height:120px;line-height:120px;margin:20px;padding:0 50px 0 50px;box-sizing:border-box;border-radius:50px;transition:all .3s ease-in-out;background-color:#0c0c0c;min-width:45%;font-size:.9em}.btn:hover{transform:scale(1.05);color:#fff;border-radius:60px;text-shadow:0 0 15px rgba(255,255,255,.2)}.btn a{display:block;width:100%;height:100%;text-decoration:none;white-space:nowrap;color:#d4d4d4}.btn a:hover{text-decoration:none}@media only screen and (max-width:786px){.btn{border-radius:15px;width:90%;padding:0 5% 0 5%}.btn:hover{transform:none;border-radius:15px}}@media only screen and (max-width:650px){.btn{font-size:7vw}}</style>
                             <p>Watch YouTube Videos together</p>
                             <div class="btn">
-                                <a href="create">CREATE ROOM</a>
+                                 <a href="create/" id="create-room">CREATE ROOM</a>
                             </div>
+                            <!-- <script src="static/js/app.js/"></script> -->
                             <p>OR</p>
                             <div class="btn">
-                                <a href="rooms">BROWSE ROOMS</a>
+                                <a href="rooms/">BROWSE ROOMS</a>
                             </div>
                             <p></p>
                         </article>

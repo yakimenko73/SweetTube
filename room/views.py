@@ -1,18 +1,32 @@
 import requests
-from django.http import HttpResponse
+import time
+from django.http import HttpResponse, JsonResponse
+from django.middleware import csrf
+
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, CreateAPIView
-from rest_framework.generics import DestroyAPIView
+from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView
 from rest_framework.views import APIView
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
 
 from .serializers import RoomSerializer, RoomSettingsSerializer
 from .models import Room
 
 
+# class CsrfExemptSessionAuthentication(SessionAuthentication):
+# 	# чтобы не выполнять ранее выполнявшуюся проверку csrf
+#     def enforce_csrf(self, request):
+#         return  
+
+
 class RoomsAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
+	# renderer_classes = [JSONRenderer]
+	# permission_classes = (IsAdminUser, )
+	# authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
 	def post(self, request, format=None):
 		if not self.request.session.exists(self.request.session.session_key):
@@ -20,9 +34,10 @@ class RoomsAPIView(APIView):
 
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
-			# подгрузка значений из модели
 			host = self.request.session.session_key
+			print(host)
 
+			# loading values from the model
 			moder_can_add = serializer.data.get('moder_can_add')
 			moder_can_remove = serializer.data.get('moder_can_remove')
 			moder_can_move = serializer.data.get('moder_can_move')
@@ -42,7 +57,7 @@ class RoomsAPIView(APIView):
 			quest_can_kick = serializer.data.get('quest_can_kick')
 
 			queryset = Room.objects.filter(host=host)
-			# случай если такой host уже есть
+			# in case such host already exists
 			if queryset.exists():
 				room = queryset[0]
 				room.moder_can_add = moder_can_add
@@ -94,12 +109,30 @@ class RoomsAPIView(APIView):
 		return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SingleRoomAPIView(DestroyAPIView):
+class SingleRoomAPIView(RetrieveDestroyAPIView):
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 
-
 def create(request):
-	response = requests.post('http://127.0.0.1:8000/create/api/')
+	head_data = {"X-CSRFToken": csrftoken}
+	post_data = {
+			"moder_can_add": True, 
+			"moder_can_remove": True,
+			"moder_can_move": True, 
+			"moder_can_playpause": True,
+			"moder_can_seek": True,
+			"moder_can_skip": True,
+			"moder_can_use_chat": True,
+			"moder_can_kick": True, 
+			"quest_can_add": True, 
+			"quest_can_remove": True, 
+			"quest_can_move": True, 
+			"quest_can_playpause": True, 
+			"quest_can_seek": True, 
+			"quest_can_skip": True, 
+			"quest_can_use_chat": True, 
+			"quest_can_kick": True
+	}
+
+	response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
 	print(response)
-	return Response(response)
