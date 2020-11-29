@@ -9,3 +9,4 @@ rooms/migrations/__pycache__/
 .idea
 README.txt
 db.*
+sweettube-env/

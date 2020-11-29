@@ -1,7 +1,9 @@
 import requests
 import time
 from django.http import HttpResponse, JsonResponse
+from django.views.generic import ListView
 from django.middleware import csrf
+from django.shortcuts import redirect
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -29,13 +31,9 @@ class RoomsAPIView(APIView):
 	# authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
 	def post(self, request, format=None):
-		if not self.request.session.exists(self.request.session.session_key):
-			self.request.session.create()
-
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
-			host = self.request.session.session_key
-			print(host)
+			host = request.headers['X-CSRFToken']
 
 			# loading values from the model
 			moder_can_add = serializer.data.get('moder_can_add')
@@ -113,26 +111,42 @@ class SingleRoomAPIView(RetrieveDestroyAPIView):
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 
-def create(request):
-	head_data = {"X-CSRFToken": csrftoken}
-	post_data = {
-			"moder_can_add": True, 
-			"moder_can_remove": True,
-			"moder_can_move": True, 
-			"moder_can_playpause": True,
-			"moder_can_seek": True,
-			"moder_can_skip": True,
-			"moder_can_use_chat": True,
-			"moder_can_kick": True, 
-			"quest_can_add": True, 
-			"quest_can_remove": True, 
-			"quest_can_move": True, 
-			"quest_can_playpause": True, 
-			"quest_can_seek": True, 
-			"quest_can_skip": True, 
-			"quest_can_use_chat": True, 
-			"quest_can_kick": True
-	}
 
-	response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
-	print(response)
+class Create(ListView):
+	serializer_class = RoomSettingsSerializer
+
+	def get(self, request, format=None):
+		request.session.create()
+		csrftoken = request.session.session_key
+
+		head_data = {"X-CSRFToken": csrftoken}
+		post_data = {
+				"moder_can_add": True, 
+				"moder_can_remove": True,
+				"moder_can_move": True, 
+				"moder_can_playpause": True,
+				"moder_can_seek": True,
+				"moder_can_skip": True,
+				"moder_can_use_chat": True,
+				"moder_can_kick": True, 
+				"quest_can_add": True, 
+				"quest_can_remove": True, 
+				"quest_can_move": True, 
+				"quest_can_playpause": True, 
+				"quest_can_seek": True, 
+				"quest_can_skip": True, 
+				"quest_can_use_chat": True, 
+				"quest_can_kick": True
+		}
+
+		response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
+		print(response)
+
+		host = csrftoken
+
+		queryset = Room.objects.filter(host=host)
+		room = queryset[0]
+
+		data = RoomSerializer(room).data
+
+		return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")

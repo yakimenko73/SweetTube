@@ -3,7 +3,6 @@ from .models import Room
 
 
 class RoomSerializer(serializers.ModelSerializer):
-	""" Класс сериализации json """
 	class Meta:
 		model = Room
 		fields = ('id', 'code', 'host', 'created_at',

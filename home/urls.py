@@ -3,8 +3,8 @@ from .views import index, privacy, contact, terms_of_service
 
 
 urlpatterns = [
-	path('', index, name='index'),
-	path('privacy/', privacy, name='privacy'),
-	path('tom/', terms_of_service, name='tom'),
-	path('contact/', contact, name='contact'),
+	path(r'', index, name='index'),
+	path(r'privacy/', privacy, name='privacy'),
+	path(r'tom/', terms_of_service, name='tom'),
+	path(r'contact/', contact, name='contact'),
 ]

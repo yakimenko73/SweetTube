@@ -1,2 +1,2 @@
-# sweeTube
+# SweetTube
 Main project
