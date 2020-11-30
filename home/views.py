@@ -25,6 +25,6 @@ def contact(request):
 
 def terms_of_service(request):
 	""" Представление страницы условий использования """
-	return render(request, 'home/tom.html', {
+	return render(request, 'home/tos.html', {
 		'error_message': "Something went wrong :( ",
 		})
