@@ -7,5 +7,4 @@ urlpatterns = [
 	path(r'api/create-room/', RoomsAPIView.as_view()),
     path(r'api/rooms/<int:pk>/', SingleRoomAPIView.as_view()),
     path(r'create/', Create.as_view()),
-    path(r'rooms/P<code>/', SingleRoomAPIView.as_view()),
 ]

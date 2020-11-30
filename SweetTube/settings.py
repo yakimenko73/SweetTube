@@ -58,7 +58,9 @@ ROOT_URLCONF = 'SweetTube.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'home/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'home/templates'),
+            os.path.join(BASE_DIR, 'rooms/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -1,9 +1,9 @@
 import requests
 import time
 from django.http import HttpResponse, JsonResponse
-from django.views.generic import ListView
+from django.views.generic import View
 from django.middleware import csrf
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -112,7 +112,7 @@ class SingleRoomAPIView(RetrieveDestroyAPIView):
 	serializer_class = RoomSerializer
 
 
-class Create(ListView):
+class Create(View):
 	serializer_class = RoomSettingsSerializer
 
 	def get(self, request, format=None):
