@@ -18,22 +18,22 @@ from .serializers import RoomSerializer, RoomSettingsSerializer
 from .models import Room
 
 
-# class CsrfExemptSessionAuthentication(SessionAuthentication):
-# 	# чтобы не выполнять ранее выполнявшуюся проверку csrf
-#     def enforce_csrf(self, request):
-#         return  
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+	# so as not to do the previously done csrf check
+    def enforce_csrf(self, request):
+        return  
 
 
 class RoomsAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
 	# renderer_classes = [JSONRenderer]
 	# permission_classes = (IsAdminUser, )
-	# authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+	authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
-			host = request.headers['X-CSRFToken']
+			host = 'kbs6zxe0bbj5d68ns5neuevru352k1sn'
 
 			# loading values from the model
 			moder_can_add = serializer.data.get('moder_can_add')
@@ -140,7 +140,6 @@ class Create(View):
 		}
 
 		response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
-		print(response)
 
 		host = csrftoken
 

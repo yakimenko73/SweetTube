@@ -3,6 +3,6 @@ from .views import index, room
 
 
 urlpatterns = [
-	path('rooms/', index),
-	path(r'rooms/<slug:code>/', room),
+	path(r'rooms/', index),
+	path(r'rooms/<slug:code>/', room)
 ]
