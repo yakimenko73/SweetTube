@@ -58,3 +58,4 @@ class User(models.Model):
 	user_status = models.CharField(max_length=2, 
 		choices=USER_STATUS_CHOICES, 
 		default=GUEST)
+	room = models.ForeignKey(Room, on_delete=models.CASCADE)

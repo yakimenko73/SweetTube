@@ -27,7 +27,7 @@ class RoomsAPIView(APIView):
 		if serializer.is_valid():
 			host = request.headers['X-CSRFToken']
 
-			# loading values from the model
+			# loading values from the request
 			moder_can_add = serializer.data.get('moder_can_add')
 			moder_can_remove = serializer.data.get('moder_can_remove')
 			moder_can_move = serializer.data.get('moder_can_move')
@@ -128,22 +128,22 @@ class Create(View):
 		"""
 		head_data = {"X-CSRFToken": session_key}
 		post_data = {
-				"moder_can_add": True, 
-				"moder_can_remove": True,
-				"moder_can_move": True, 
-				"moder_can_playpause": True,
-				"moder_can_seek": True,
-				"moder_can_skip": True,
-				"moder_can_use_chat": True,
-				"moder_can_kick": True, 
-				"guest_can_add": True, 
-				"guest_can_remove": True, 
-				"guest_can_move": True, 
-				"guest_can_playpause": True, 
-				"guest_can_seek": True, 
-				"guest_can_skip": True, 
-				"guest_can_use_chat": True, 
-				"guest_can_kick": True
+			"moder_can_add": True, 
+			"moder_can_remove": True,
+			"moder_can_move": True, 
+			"moder_can_playpause": True,
+			"moder_can_seek": True,
+			"moder_can_skip": True,
+			"moder_can_use_chat": True,
+			"moder_can_kick": True, 
+			"guest_can_add": True, 
+			"guest_can_remove": True, 
+			"guest_can_move": True, 
+			"guest_can_playpause": True, 
+			"guest_can_seek": True, 
+			"guest_can_skip": True, 
+			"guest_can_use_chat": True, 
+			"guest_can_kick": True
 		}
 
 		requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)

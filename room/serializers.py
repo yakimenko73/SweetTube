@@ -31,4 +31,4 @@ class RoomSettingsSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ('user_status', )
+		fields = ('user_status', 'room')
