@@ -7,33 +7,25 @@ from django.shortcuts import redirect, render
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import RetrieveDestroyAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
 
-from .serializers import RoomSerializer, RoomSettingsSerializer
-from .models import Room
-
-
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-	# so as not to do the previously done csrf check
-    def enforce_csrf(self, request):
-        return  
+from .serializers import RoomSerializer, RoomSettingsSerializer, UserSerializer
+from .models import Room, User
 
 
 class RoomsAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
-	# renderer_classes = [JSONRenderer]
-	# permission_classes = (IsAdminUser, )
-	authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+	renderer_classes = [JSONRenderer]
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
-			host = 'kbs6zxe0bbj5d68ns5neuevru352k1sn'
+			host = request.headers['X-CSRFToken']
 
 			# loading values from the model
 			moder_can_add = serializer.data.get('moder_can_add')
@@ -45,14 +37,14 @@ class RoomsAPIView(APIView):
 			moder_can_use_chat = serializer.data.get('moder_can_use_chat')
 			moder_can_kick = serializer.data.get('moder_can_kick')
 
-			quest_can_add = serializer.data.get('quest_can_add')
-			quest_can_remove = serializer.data.get('quest_can_remove')
-			quest_can_move = serializer.data.get('quest_can_move')
-			quest_can_playpause = serializer.data.get('quest_can_playpause')
-			quest_can_seek = serializer.data.get('quest_can_seek')
-			quest_can_skip = serializer.data.get('quest_can_skip')
-			quest_can_use_chat = serializer.data.get('quest_can_use_chat')
-			quest_can_kick = serializer.data.get('quest_can_kick')
+			guest_can_add = serializer.data.get('guest_can_add')
+			guest_can_remove = serializer.data.get('guest_can_remove')
+			guest_can_move = serializer.data.get('guest_can_move')
+			guest_can_playpause = serializer.data.get('guest_can_playpause')
+			guest_can_seek = serializer.data.get('guest_can_seek')
+			guest_can_skip = serializer.data.get('guest_can_skip')
+			guest_can_use_chat = serializer.data.get('guest_can_use_chat')
+			guest_can_kick = serializer.data.get('guest_can_kick')
 
 			queryset = Room.objects.filter(host=host)
 			# in case such host already exists
@@ -67,21 +59,21 @@ class RoomsAPIView(APIView):
 				room.moder_can_use_chat = moder_can_use_chat
 				room.moder_can_kick = moder_can_kick
 
-				room.quest_can_add = quest_can_add
-				room.quest_can_remove = quest_can_remove
-				room.quest_can_move = quest_can_move
-				room.quest_can_playpause = quest_can_playpause
-				room.quest_can_seek = quest_can_seek
-				room.quest_can_skip = quest_can_skip
-				room.quest_can_use_chat = quest_can_use_chat
-				room.quest_can_kick = quest_can_kick
+				room.guest_can_add = guest_can_add
+				room.guest_can_remove = guest_can_remove
+				room.guest_can_move = guest_can_move
+				room.guest_can_playpause = guest_can_playpause
+				room.guest_can_seek = guest_can_seek
+				room.guest_can_skip = guest_can_skip
+				room.guest_can_use_chat = guest_can_use_chat
+				room.guest_can_kick = guest_can_kick
 
 				room.save(update_fields=['moder_can_add', 'moder_can_remove', 'moder_can_move',
 									'moder_can_playpause', 'moder_can_seek', 'moder_can_skip',
-									'moder_can_use_chat', 'moder_can_kick', 'quest_can_add',
-									'quest_can_remove', 'quest_can_move', 'quest_can_playpause',
-									'quest_can_seek', 'quest_can_skip', 'quest_can_use_chat', 
-									'quest_can_kick'])
+									'moder_can_use_chat', 'moder_can_kick', 'guest_can_add',
+									'guest_can_remove', 'guest_can_move', 'guest_can_playpause',
+									'guest_can_seek', 'guest_can_skip', 'guest_can_use_chat', 
+									'guest_can_kick'])
 				return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 			else:
 				room = Room(host=host, 
@@ -93,33 +85,31 @@ class RoomsAPIView(APIView):
 							moder_can_skip=moder_can_skip,
 							moder_can_use_chat=moder_can_use_chat,
 							moder_can_kick=moder_can_kick, 
-							quest_can_add=quest_can_add, 
-							quest_can_remove=quest_can_remove, 
-							quest_can_move=quest_can_move, 
-							quest_can_playpause=quest_can_playpause, 
-							quest_can_seek=quest_can_seek, 
-							quest_can_skip=quest_can_skip, 
-							quest_can_use_chat=quest_can_kick, 
-							quest_can_kick=quest_can_kick)
+							guest_can_add=guest_can_add, 
+							guest_can_remove=guest_can_remove, 
+							guest_can_move=guest_can_move, 
+							guest_can_playpause=guest_can_playpause, 
+							guest_can_seek=guest_can_seek, 
+							guest_can_skip=guest_can_skip, 
+							guest_can_use_chat=guest_can_kick, 
+							guest_can_kick=guest_can_kick)
 				room.save()
 				return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
 
-		return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SingleRoomAPIView(RetrieveDestroyAPIView):
+class SingleRoomAPIView(RetrieveUpdateDestroyAPIView):
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 
 
 class Create(View):
-	serializer_class = RoomSettingsSerializer
-
 	def get(self, request, format=None):
 		request.session.create()
-		csrftoken = request.session.session_key
+		session_key = request.session.session_key
 
-		head_data = {"X-CSRFToken": csrftoken}
+		head_data = {"X-CSRFToken": session_key}
 		post_data = {
 				"moder_can_add": True, 
 				"moder_can_remove": True,
@@ -129,23 +119,27 @@ class Create(View):
 				"moder_can_skip": True,
 				"moder_can_use_chat": True,
 				"moder_can_kick": True, 
-				"quest_can_add": True, 
-				"quest_can_remove": True, 
-				"quest_can_move": True, 
-				"quest_can_playpause": True, 
-				"quest_can_seek": True, 
-				"quest_can_skip": True, 
-				"quest_can_use_chat": True, 
-				"quest_can_kick": True
+				"guest_can_add": True, 
+				"guest_can_remove": True, 
+				"guest_can_move": True, 
+				"guest_can_playpause": True, 
+				"guest_can_seek": True, 
+				"guest_can_skip": True, 
+				"guest_can_use_chat": True, 
+				"guest_can_kick": True
 		}
 
 		response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
 
-		host = csrftoken
+		host = session_key
 
 		queryset = Room.objects.filter(host=host)
-		room = queryset[0]
 
-		data = RoomSerializer(room).data
+		if queryset.exists():
+			room = queryset[0]
 
-		return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
+			data = RoomSerializer(room).data
+
+			return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
+
+		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
