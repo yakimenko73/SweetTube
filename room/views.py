@@ -1,5 +1,6 @@
 import requests
 import time
+
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.middleware import csrf
@@ -50,30 +51,6 @@ class RoomsAPIView(APIView):
 			# in case such host already exists
 			if queryset.exists():
 				room = queryset[0]
-				room.moder_can_add = moder_can_add
-				room.moder_can_remove = moder_can_remove
-				room.moder_can_move = moder_can_move
-				room.moder_can_playpause = moder_can_playpause
-				room.moder_can_seek = moder_can_seek
-				room.moder_can_skip = moder_can_skip
-				room.moder_can_use_chat = moder_can_use_chat
-				room.moder_can_kick = moder_can_kick
-
-				room.guest_can_add = guest_can_add
-				room.guest_can_remove = guest_can_remove
-				room.guest_can_move = guest_can_move
-				room.guest_can_playpause = guest_can_playpause
-				room.guest_can_seek = guest_can_seek
-				room.guest_can_skip = guest_can_skip
-				room.guest_can_use_chat = guest_can_use_chat
-				room.guest_can_kick = guest_can_kick
-
-				room.save(update_fields=['moder_can_add', 'moder_can_remove', 'moder_can_move',
-									'moder_can_playpause', 'moder_can_seek', 'moder_can_skip',
-									'moder_can_use_chat', 'moder_can_kick', 'guest_can_add',
-									'guest_can_remove', 'guest_can_move', 'guest_can_playpause',
-									'guest_can_seek', 'guest_can_skip', 'guest_can_use_chat', 
-									'guest_can_kick'])
 				return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 			else:
 				room = Room(host=host, 

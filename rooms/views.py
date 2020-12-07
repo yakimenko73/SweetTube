@@ -38,10 +38,6 @@ class UsersAPIView(APIView):
 			# in case such host already exists
 			if queryset.exists():
 				user = queryset[0]
-				user.user_status = user_status
-				user.room_id = room_id
-				
-				user.save(update_fields=['user_status', 'room_id'])
 				return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 			else:
 				user = User(session_key=session_key, 
