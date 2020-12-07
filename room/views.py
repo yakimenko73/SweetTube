@@ -109,6 +109,23 @@ class Create(View):
 		request.session.create()
 		session_key = request.session.session_key
 
+		self.take_room(session_key)
+
+		queryset = Room.objects.filter(host=session_key)
+
+		if queryset.exists():
+			room = queryset[0]
+
+			data = RoomSerializer(room).data
+
+			return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
+
+		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
+
+	def take_room(self, session_key):
+		""" 
+			function make a post request to the api to add/edit a user 
+		"""
 		head_data = {"X-CSRFToken": session_key}
 		post_data = {
 				"moder_can_add": True, 
@@ -129,17 +146,4 @@ class Create(View):
 				"guest_can_kick": True
 		}
 
-		response = requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
-
-		host = session_key
-
-		queryset = Room.objects.filter(host=host)
-
-		if queryset.exists():
-			room = queryset[0]
-
-			data = RoomSerializer(room).data
-
-			return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
-
-		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
+		requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)

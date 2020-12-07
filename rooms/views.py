@@ -2,6 +2,7 @@ import requests
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.generic import View
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -20,7 +21,7 @@ def index(request):
 	return HttpResponse('Rooms will be displayed.')
 
 
-class UserAPIView(APIView):
+class UsersAPIView(APIView):
 	serializer_class = UserSerializer
 	renderer_classes = [JSONRenderer]
 
@@ -53,26 +54,33 @@ class SingleUserAPIView(RetrieveUpdateDestroyAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
 
-def room(request, code):
-	if not request.session.session_key:
-		request.session.create()
-	session_key = request.session.session_key
 
-	# make a post request to the api to add/edit a user
-	head_data = {'X-CSRFToken': session_key}
-	post_data = {'user_status': 'GU'}
+class RoomView(View):
+	def get(self, request, code, format=None):
+		queryset = Room.objects.filter(code=code)
+		if queryset.exists():
+			room = queryset[0]
+			room_data = RoomSerializer(room).data
 
-	response = requests.post("http://127.0.0.1:8000/api/create-user/", data=post_data, headers=head_data)
+			# check for activated session
+			if not request.session.session_key:
+				request.session.create()
+			session_key = request.session.session_key
 
-	serializer_class = RoomSettingsSerializer
-	queryset = Room.objects.filter(code=code)
+			# request for add or edit user
+			self.take_user(session_key)		
 
-	if queryset.exists():
-		room = queryset[0]
-		data = RoomSerializer(room).data
+			return HttpResponse(f"{room_data}\nUSER: {session_key}", status=status.HTTP_200_OK)
 
-		return HttpResponse(f"{data}\nUSER: {session_key}", status=status.HTTP_200_OK)
+		return render(request, 'rooms/roomnfound.html', {
+			'error_message': status.HTTP_400_BAD_REQUEST,
+		})
+	
+	def take_user(self, session_key):
+		""" 
+			function make a post request to the api to add/edit a user 
+		"""
+		head_data = {'X-CSRFToken': session_key}
+		post_data = {'user_status': 'GU'}
 
-	return render(request, 'rooms/roomnfound.html', {
-		'error_message': status.HTTP_400_BAD_REQUEST,
-	})
+		requests.post("http://127.0.0.1:8000/api/create-user/", data=post_data, headers=head_data)
