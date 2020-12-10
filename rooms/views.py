@@ -85,4 +85,4 @@ class RoomView(View):
 			'room': room_id,
 		}
 
-		requests.post("http://25.37.17.97:8000/api/create-user/", data=post_data, headers=head_data)
+		requests.post("http://127.0.0.1:8000/api/create-user/", data=post_data, headers=head_data)
