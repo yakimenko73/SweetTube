@@ -95,7 +95,7 @@ class Create(View):
 
 			data = RoomSerializer(room).data
 
-			return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
+			return redirect(f"http://25.37.17.97:8000/rooms/{data['code']}")
 
 		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
 
@@ -123,4 +123,4 @@ class Create(View):
 			"guest_can_kick": True
 		}
 
-		requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
+		requests.post('http://25.37.17.97:8000/api/create-room/', data=post_data, headers=head_data)
