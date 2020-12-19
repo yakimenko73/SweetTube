@@ -6,5 +6,5 @@ urlpatterns = [
 	path('', include('home.urls')),
 	path('', include('room.urls')),
 	path('', include('rooms.urls')),
-	path('api/auth/', include('rest_framework.urls')),
+	path('', include('user.urls')),
 ]
