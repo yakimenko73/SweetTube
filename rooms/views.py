@@ -70,7 +70,9 @@ class RoomView(View):
 			user_status = 'HO' if room_data['host'] == session_key else 'GU'
 			self.take_user(session_key, user_status, room_data['id'])		
 
-			return HttpResponse(f"{room_data}\nUSER: {session_key}", status=status.HTTP_200_OK)
+			return render(request, 'rooms/index.html', {
+			'error_message': status.HTTP_200_OK,
+		})
 
 		return render(request, 'rooms/roomnfound.html', {
 			'error_message': status.HTTP_400_BAD_REQUEST,

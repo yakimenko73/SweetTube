@@ -1,0 +1,320 @@
+<html lang="en">
+    <head>
+        <title>Room #323 - SweetTube</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Watch YouTube videos together. Create rooms, manage permissions and chat while watching videos synchronized with your friends!">
+        <link rel="icon" href="/static/images/favicon.png">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300">
+        <link rel="stylesheet" href="/static/style/normalize.css">
+        <link rel="stylesheet" href="/static/style/room.css">
+        <script type="text/javascript" id="www-widgetapi-script" src="https://www.youtube.com/s/player/2e6e57d8/www-widgetapi.vflset/www-widgetapi.js" async=""></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+    </head>
+    <body>
+        <header>
+            <div class="header_wrapper">
+                <div class="logo noselect">
+                    <a style="text-decoration: none;" href="/">SweetTube</a>
+                </div>
+                <div class="roomName noselect">Room #323</div>
+                <div class="search_input_wrapper"><inpute class="searchInput" type="text" placeholder="Enter YouTube URL here"></div>
+            </div>
+            <div class="user_popup">
+                <div class="user_popup_btn"><img src="/static/images/user.png"></div>
+                <div class="user_popup_menu">
+                    <div class="user_popup_entry" id="btn_login">Login</div>
+                    <a href="/signup" target="_blank">
+                        <div class="user_popup_entry">Sign Up</div>
+                    </a>
+                    <div class="user_popup_spacer"></div>
+                    <div class="user_popup_entry" id="btn_settings">Settings</div>
+                </div>
+            </div>
+            <div class="search_result_wrapper"></div>
+        </header>
+        <main>
+            <div class="left_wrapper">
+                <div class="center">
+                    <div class="player">
+                        <div class="view">
+                            <div id="player"></div>
+                            <div class="novideo visible">NO VIDEO</div>
+                        </div>
+                    </div>
+                    <div class="info">
+                        <div class="btnSkip">Skip Video</div>
+                        <div class="videoTitle"></div>
+                        <div class="videoDescription"></div>
+                        <div class="readMore noselect">Show more</div>
+                    </div>
+                    <nav class="tabs noselect" id="main_nav">
+                        <div class="nohide" t="playlist">
+                            Playlist
+                            <div class="notify" val="0">0</div>
+                        </div>
+                        <div class="nohide tab_selected" t="chat">
+                            Chat
+                            <div class="notify" val="0">0</div>
+                        </div>
+                        <div id="btnSettings">Settings</div>
+                    </nav>
+                </div>
+            </div>
+            <aside>
+                <div class="wrapper">
+                    <div class="content">
+                        <div class="wrapper">
+                            <div class="playlist tab">
+                                <ul id="video_list"></ul>
+                                <div class="noplaylist noselect visible">No upcoming Videos</div>
+                                <div class="edge"></div>
+                            </div>
+                            <div class="chat tab_visible tab">
+                                <div class="log" id="chat_log">
+                                    <li><span style="color: rgb(100, 100, 100);">Киево-могилянская академия joined the room</span></li>
+                                </div>
+                                <div class="input">
+                                    <input type="text" spellcheck="false" id="chat_input">
+                                    <div class="btn" id="btn_chat_emotes"><img src="/static/images/emote.png"></div>
+                                </div>
+                                <div class="emotes" style="display: none;">
+                                    <div class="emojiNav tabs">
+                                        <div class="emojiBtn tab_selected" t="defaultEmojis">Emoji</div>
+                                        <div class="emojiBtn" t="customEmojis">Other</div>
+                                    </div>
+                                    <div class="emojiContent">
+                                        <div class="defaultEmojis tab_visible tab"></div>
+                                        <ul class="customEmojis tab" style="display: none;"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="users">
+                        <div class="userCount noselect">1 Users</div>
+                        <ul id="user_list">
+                            <li class="user" id="9LwI6S_EJn" style="border-right: 5px solid rgb(75, 11, 11);">
+                                <div class="name" style="font-weight: bold;">Киево-могилянская академия</div>
+                                <img src="/static/images/loading.gif">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </main>
+        <div class="overlay">
+            <div class="overlay_background"></div>
+            <div class="settings">
+                <div class="title">Settings</div>
+                <div class="btnClose"><img src="/static/images/crossb.png"></div>
+                <div class="settings_content">
+                    <div class="left">
+                        <section>
+                            <div class="title">User</div>
+                            <ul>
+                                <li>
+                                    <div class="desc">Remember Name</div>
+                                    <div class="checkbox checked" id="cb_rn"></div>
+                                </li>
+                                <li>
+                                    <div class="desc">Your Name</div>
+                                    <div class="color_picker" style="background-color: rgb(213, 209, 3);">
+                                        <div class="color_picker_popup" style="display: none;">
+                                            <div class="wrapper">
+                                                <div class="canvas_wrapper">
+                                                    <canvas class="color_canvas"></canvas>
+                                                    <div class="color_picker_thump" style="left: 98.4014%; top: 16.5961%;"></div>
+                                                </div>
+                                                <div class="hue_slider">
+                                                    <div class="hue_slider_thump" style="left: 16.3991%;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="text" id="input_userName">
+                                </li>
+                            </ul>
+                        </section>
+                        <section>
+                            <div class="title">Room</div>
+                            <ul class="enabled">
+                                <li>
+                                    <div class="desc">Public</div>
+                                    <div class="checkbox checked" id="cb_p"></div>
+                                </li>
+                                <li>
+                                    <div class="desc">Room Name</div>
+                                    <input type="text" id="input_roomName">
+                                </li>
+                            </ul>
+                        </section>
+                    </div>
+                    <div class="right">
+                        <section>
+                            <div class="title">Permissions</div>
+                            <table class="enabled" id="table_permissions">
+                                <tbody>
+                                    <tr>
+                                        <th> </th>
+                                        <th>Guest</th>
+                                        <th>Moderator</th>
+                                        <th>Owner</th>
+                                    </tr>
+                                    <tr pid="add">
+                                        <th>Add</th>
+                                        <td>
+                                            <div class="checkbox checked" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="rem">
+                                        <th>Remove</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="move">
+                                        <th>Move</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="play">
+                                        <th>Play/Pause</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="seek">
+                                        <th>Seek</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="skip">
+                                        <th>Skip</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="chat">
+                                        <th>Use Chat</th>
+                                        <td>
+                                            <div class="checkbox checked" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                    <tr pid="kick">
+                                        <th>Kick</th>
+                                        <td>
+                                            <div class="checkbox" id="0"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox" id="1"></div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox checked" id="2"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="login_form">
+                <div class="title">Login</div>
+                <div class="label">User</div>
+                <input type="text" name="user">
+                <div class="label">
+                    Password
+                    <a href="resetpwd" target="_blank">
+                        <div class="label_info">Forgot?</div>
+                    </a>
+                </div>
+                <input type="passwort" name="pwd">
+                <div class="btn_login">Login</div>
+                <div class="bottom_info">
+                    Not a member?
+                    <a href="/signup" target="_blank">
+                        <div class="label_info">Sign up now</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="footer_wrapper">
+                <aside class="footer_side scrollFade shrink" fadeto="grow">
+                    <div>
+                        <p>© SweetTube.ua 2020</p>
+                    </div>
+                </aside>
+                <aside class="footer_social scrollFade shrink" fadeto="grow">
+                    <div>
+                        <a href="https://discord.gg/mHb6RYv7pu">
+                            <img src="/static/images/iconmonstr-discord-5.png">
+                        </a>
+                    </div>
+                    <div>
+                        <a href="https://www.instagram.com/hetero.sexuell/">
+                            <img src="/static/images/iconmonstr-instagram-15.png">
+                        </a>
+                    </div>
+                    <div>
+                        <a href="https://github.com/yakimenko73/SweetTube">
+                            <img src="/static/images/iconmonstr-github-5.png/">
+                        </a>
+                    </div>
+                </aside>
+                <aside class="footer_side scrollFade shrink" fadeto="grow">
+                    <div>
+                        <p><a href="/contact">Contact</a></p>
+                        <p><a href="/tos">Terms of Service</a></p>
+                        <p><a href="/privacy">Privacy Policy</a></p>
+                    </div>
+                </aside>
+            </div>
+        </footer>
+    </body>
+</html>
