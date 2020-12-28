@@ -13,45 +13,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
 
-from room.serializers import RoomSerializer, RoomSettingsSerializer, UserSerializer
-from room.models import Room, User
+from room.serializers import RoomSerializer, RoomSettingsSerializer
+from user.serializers import UserSerializer
 
-
-def index(request):
-	return HttpResponse('Rooms will be displayed.')
-
-
-class UsersAPIView(APIView):
-	serializer_class = UserSerializer
-	renderer_classes = [JSONRenderer]
-
-	def post(self, request, format=None):
-		serializer = self.serializer_class(data=request.data)
-		if serializer.is_valid():
-			session_key = request.headers['X-CSRFToken']
-
-			# loading values from the request
-			user_status = serializer.data.get('user_status')
-			room_id = serializer.data.get('room')
-			
-			queryset = User.objects.filter(session_key=session_key)
-			# in case such host already exists
-			if queryset.exists():
-				user = queryset[0]
-				return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-			else:
-				user = User(session_key=session_key, 
-							user_status=user_status,
-							room_id=room_id)
-				user.save()
-				return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
-
-		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SingleUserAPIView(RetrieveUpdateDestroyAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+from room.models import Room
+from user.models import User
 
 
 class RoomView(View):
@@ -68,17 +34,17 @@ class RoomView(View):
 
 			# request for add or edit user
 			user_status = 'HO' if room_data['host'] == session_key else 'GU'
-			self.take_user(session_key, user_status, room_data['id'])		
+			self.create_user(session_key, user_status, room_data['id'])		
 
 			return render(request, 'rooms/index.html', {
-			'error_message': status.HTTP_200_OK,
+				'error_message': status.HTTP_200_OK,
 		})
 
 		return render(request, 'rooms/roomnfound.html', {
 			'error_message': status.HTTP_400_BAD_REQUEST,
 		})
 	
-	def take_user(self, session_key, user_status, room_id):
+	def create_user(self, session_key, user_status, room_id):
 		""" 
 			function make a post request to the api to add/edit a user 
 		"""
@@ -87,4 +53,10 @@ class RoomView(View):
 			'room': room_id,
 		}
 
-		requests.post("http://127.0.0.1:8000/api/create-user/", data=post_data, headers=head_data)
+		requests.post("http://127.0.0.1:8000/api/user/", data=post_data, headers=head_data)
+
+
+class RoomsView(View):
+	def get(self, request, format=None):
+		response = requests.get("http://127.0.0.1:8000/api/rooms/")	
+		return HttpResponse(f"{response.json()}")

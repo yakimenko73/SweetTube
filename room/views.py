@@ -15,11 +15,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
 
-from .serializers import RoomSerializer, RoomSettingsSerializer, UserSerializer
-from .models import Room, User
+from .serializers import RoomSerializer, RoomSettingsSerializer
+from user.serializers import UserSerializer
+
+from .models import Room 
+from user.models import User
 
 
-class RoomsAPIView(APIView):
+class CreateRoomAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
 	renderer_classes = [JSONRenderer]
 
@@ -76,7 +79,12 @@ class RoomsAPIView(APIView):
 		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SingleRoomAPIView(RetrieveUpdateDestroyAPIView):
+class UpdateRoomAPIView(RetrieveUpdateDestroyAPIView):
+	queryset = Room.objects.all()
+	serializer_class = RoomSerializer
+
+
+class ListRoomsAPIView(ListAPIView):
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 
@@ -86,7 +94,7 @@ class Create(View):
 		request.session.create()
 		session_key = request.session.session_key
 
-		self.take_room(session_key)
+		self.create_room(session_key)
 
 		queryset = Room.objects.filter(host=session_key)
 
@@ -99,9 +107,9 @@ class Create(View):
 
 		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
 
-	def take_room(self, session_key):
+	def create_room(self, session_key):
 		""" 
-			function make a post request to the api to add/edit a user 
+			function make a post request to the api to add a room 
 		"""
 		head_data = {"X-CSRFToken": session_key}
 		post_data = {
@@ -123,4 +131,4 @@ class Create(View):
 			"guest_can_kick": True
 		}
 
-		requests.post('http://127.0.0.1:8000/api/create-room/', data=post_data, headers=head_data)
+		requests.post('http://127.0.0.1:8000/api/room/', data=post_data, headers=head_data)
