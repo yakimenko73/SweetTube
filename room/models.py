@@ -5,7 +5,7 @@ from django.db import models
 
 
 def generate_unique_code():
-	lenght = 9
+	lenght = 6
 
 	while True:
 		code = ''.join(random.choices(string.ascii_uppercase+string.ascii_lowercase+'0123456789', k=lenght))
@@ -41,3 +41,21 @@ class Room(models.Model):
 
 	def __str__(self):
 		return f"host: {self.host}, room-code: {self.code}"
+
+
+class User(models.Model):
+	""" Модель пользователя """
+	HOST = 'HO'
+	MODERATOR = 'MO'
+	GUEST = 'GU'
+
+	USER_STATUS_CHOICES = (
+		(HOST, 'Host'),
+		(MODERATOR, 'Moderator'),
+		(GUEST, 'Guest'),
+	)
+	session_key = models.CharField(max_length=40, default=None, unique=True)
+	user_status = models.CharField(max_length=2, 
+		choices=USER_STATUS_CHOICES, 
+		default=GUEST)
+	room = models.ForeignKey(Room, on_delete=models.CASCADE)

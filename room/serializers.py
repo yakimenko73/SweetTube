@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Room
+from .models import Room, User
 
 
 class RoomSerializer(serializers.ModelSerializer):
@@ -26,3 +26,9 @@ class RoomSettingsSerializer(serializers.ModelSerializer):
 			'guest_can_seek', 'guest_can_skip', 'guest_can_use_chat', 
 			'guest_can_kick'
 			)
+
+
+class UserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ('user_status', 'room')
