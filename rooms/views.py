@@ -37,6 +37,7 @@ class RoomView(View):
 			self.create_user(session_key, user_status, room_data['id'])		
 
 			return render(request, 'rooms/index.html', {
+				'room_name': code,
 				'error_message': status.HTTP_200_OK,
 		})
 

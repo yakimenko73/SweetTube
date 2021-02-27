@@ -1,13 +1,15 @@
 db.sqlite3
-__pycache__
-home/__pycache__
-room/__pycache__
-rooms/__pycache__
-user/__pycache__
-home/migrations/__pycache__/
-room/migrations/__pycache__/
-rooms/migrations/__pycache__/
-user/migrations/__pycache__/
+.vscode/*.*
+__pycache__/*.*
+home/__pycache__/*.*
+room/__pycache__/*.*
+rooms/__pycache__/*.*
+user/__pycache__/*.*
+home/migrations/__pycache__/*.*
+room/migrations/__pycache__/*.*
+rooms/migrations/__pycache__/*.*
+user/migrations/__pycache__/*.*
+SweetTube/__pycache__/*.*
 .idea
 GIT README.txt
 db.*

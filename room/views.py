@@ -84,7 +84,7 @@ class UpdateRoomAPIView(RetrieveUpdateDestroyAPIView):
 	serializer_class = RoomSerializer
 
 
-class ListRoomsAPIView(ListAPIView):
+class ListRoomAPIView(ListAPIView):
 	queryset = Room.objects.all()
 	serializer_class = RoomSerializer
 

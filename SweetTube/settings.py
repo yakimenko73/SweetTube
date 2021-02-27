@@ -1,13 +1,8 @@
 import os
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '2ddj!%(k0lyl_93e+!$z#_9q%4y6yvow(nz4fdlmbqe9p%to8i'
@@ -24,6 +19,7 @@ ALLOWED_HOSTS = ['25.37.17.97',
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,6 +31,7 @@ INSTALLED_APPS = [
     'rooms.apps.RoomsConfig',
     'user.apps.UserConfig',
     'rest_framework',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -52,8 +49,10 @@ ROOT_URLCONF = 'SweetTube.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'home/templates'),
+        'DIRS': [
+            os.path.join(BASE_DIR, 'home/templates'),
             os.path.join(BASE_DIR, 'rooms/templates'),
+            os.path.join(BASE_DIR, 'chat/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
