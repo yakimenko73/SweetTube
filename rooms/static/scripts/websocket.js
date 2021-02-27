@@ -1,4 +1,4 @@
-const roomName = JSON.parse(document.getElementById('room_name').textContent);
+const roomName = JSON.parse(document.getElementById('room-name').textContent);
 const chatSocket = new WebSocket(
 	'ws://' +
 	window.location.host +
@@ -13,21 +13,16 @@ chatSocket.onmessage = function(e) {
 };
 
 chatSocket.onclose = function(e) {
-	console.error('Chat socket closed unexpectedly');
+	alert('Chat socket closed unexpectedly');
 };
 
-document.querySelector('#chat_input').focus();
 document.querySelector('#chat_input').onkeyup = function(e) {
 	if (e.keyCode === 13) { // enter, return
-		document.querySelector('#chat-message-submit').click();
+		const messageInputDom = document.querySelector('#chat_input');
+		const message = messageInputDom.value;
+		chatSocket.send(JSON.stringify({
+			'message': message
+		}));
+		messageInputDom.value = '';
 	}
-};
-
-document.querySelector('#chat-message-submit').onclick = function(e) {
-	const messageInputDom = document.querySelector('#chat-message-input');
-	const message = messageInputDom.value;
-	chatSocket.send(JSON.stringify({
-		'message': message
-	}));
-	messageInputDom.value = '';
 };
