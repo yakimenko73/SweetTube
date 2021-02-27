@@ -1,4 +1,3 @@
-import requests
 import time
 
 from django.http import HttpResponse, JsonResponse
@@ -24,14 +23,22 @@ from user.models import User
 
 class CreateRoomAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
-	renderer_classes = [JSONRenderer]
+	renderer_classes = [JSONRenderer, ]
+
+	def get(self, request, format=None):
+		request.headers = request.session.get("head_data", None)
+		request.data.update(request.session.get("post_data", None))
+		
+		response = self.post(request)
+		print(response.status_code)
+
+		return redirect(f"http://127.0.0.1:8000/rooms/{response.data['code']}")
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
 			host = request.headers['X-CSRFToken']
 
-			# loading values from the request
 			moder_can_add = serializer.data.get('moder_can_add')
 			moder_can_remove = serializer.data.get('moder_can_remove')
 			moder_can_move = serializer.data.get('moder_can_move')
@@ -51,9 +58,9 @@ class CreateRoomAPIView(APIView):
 			guest_can_kick = serializer.data.get('guest_can_kick')
 
 			queryset = Room.objects.filter(host=host)
-			# in case such host already exists
 			if queryset.exists():
 				room = queryset[0]
+
 				return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 			else:
 				room = Room(host=host, 
@@ -74,9 +81,10 @@ class CreateRoomAPIView(APIView):
 							guest_can_use_chat=guest_can_kick, 
 							guest_can_kick=guest_can_kick)
 				room.save()
+
 				return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
 
-		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'Bad request': 'Invalid data.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateRoomAPIView(RetrieveUpdateDestroyAPIView):
@@ -94,25 +102,8 @@ class Create(View):
 		request.session.create()
 		session_key = request.session.session_key
 
-		self.create_room(session_key)
-
-		queryset = Room.objects.filter(host=session_key)
-
-		if queryset.exists():
-			room = queryset[0]
-
-			data = RoomSerializer(room).data
-
-			return redirect(f"http://127.0.0.1:8000/rooms/{data['code']}")
-
-		return HttpResponse('Something went wrong :(', status=status.HTTP_400_BAD_REQUEST)
-
-	def create_room(self, session_key):
-		""" 
-			function make a post request to the api to add a room 
-		"""
-		head_data = {"X-CSRFToken": session_key}
-		post_data = {
+		request.session["head_data"] = {"X-CSRFToken": session_key}
+		request.session["post_data"] = {
 			"moder_can_add": True, 
 			"moder_can_remove": True,
 			"moder_can_move": True, 
@@ -128,7 +119,7 @@ class Create(View):
 			"guest_can_seek": True, 
 			"guest_can_skip": True, 
 			"guest_can_use_chat": True, 
-			"guest_can_kick": True
+			"guest_can_kick": True,
 		}
 
-		requests.post('http://127.0.0.1:8000/api/room/', data=post_data, headers=head_data)
+		return redirect(f"http://127.0.0.1:8000/api/room/")

@@ -1,6 +1,6 @@
 import requests
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import View
 
@@ -20,19 +20,31 @@ from .models import User
 
 class CreateUserAPIView(APIView):
 	serializer_class = UserSerializer
-	renderer_classes = [JSONRenderer]
+	renderer_classes = [JSONRenderer, ]
+
+	def get(self, request, format=None):
+		request.headers = request.session.get("head_data", None)
+		request.data.update(request.session.get("post_data", None))
+
+		room_name = request.data.pop("room_name", None)
+		
+		response = self.post(request)
+
+		if response.status_code == 400:
+			return redirect(f"http://127.0.0.1:8000/rooms/{room_name}/room-not-found/")
+
+		return redirect(f"http://127.0.0.1:8000/rooms/{room_name}/watch/")
 
 	def post(self, request, format=None):
+		print(request.data)
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
 			session_key = request.headers['X-CSRFToken']
 
-			# loading values from the request
 			user_status = serializer.data.get('user_status')
 			room_id = serializer.data.get('room')
 			
 			queryset = User.objects.filter(session_key=session_key)
-			# in case such host already exists
 			if queryset.exists():
 				user = queryset[0]
 				return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
