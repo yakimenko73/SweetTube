@@ -21,6 +21,26 @@ from .models import Room
 from user.models import User
 
 
+OWNER_RIGHTS = {
+			"moder_can_add": True, 
+			"moder_can_remove": True,
+			"moder_can_move": True, 
+			"moder_can_playpause": True,
+			"moder_can_seek": True,
+			"moder_can_skip": True,
+			"moder_can_use_chat": True,
+			"moder_can_kick": True, 
+			"guest_can_add": True, 
+			"guest_can_remove": True, 
+			"guest_can_move": True, 
+			"guest_can_playpause": True, 
+			"guest_can_seek": True, 
+			"guest_can_skip": True, 
+			"guest_can_use_chat": True, 
+			"guest_can_kick": True,
+}
+
+
 class CreateRoomAPIView(APIView):
 	serializer_class = RoomSettingsSerializer
 	renderer_classes = [JSONRenderer, ]
@@ -28,11 +48,16 @@ class CreateRoomAPIView(APIView):
 	def get(self, request, format=None):
 		request.headers = request.session.get("head_data", None)
 		request.data.update(request.session.get("post_data", None))
-		
-		response = self.post(request)
-		print(response.status_code)
 
-		return redirect(f"http://127.0.0.1:8000/rooms/{response.data['code']}")
+		response = self.post(request)
+
+		request.session["head_data"] = request.headers
+		request.session["post_data"] ={'user_status': "HO",
+			'room': response.data['id'],
+			'room_name': response.data['code'],
+		}
+
+		return redirect(f"http://127.0.0.1:8000/api/user/")
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
@@ -99,27 +124,28 @@ class ListRoomAPIView(ListAPIView):
 
 class Create(View):
 	def get(self, request, format=None):
+		followed_the_link = request.session.get("followed_the_link", None)
+
 		request.session.create()
 		session_key = request.session.session_key
 
 		request.session["head_data"] = {"X-CSRFToken": session_key}
-		request.session["post_data"] = {
-			"moder_can_add": True, 
-			"moder_can_remove": True,
-			"moder_can_move": True, 
-			"moder_can_playpause": True,
-			"moder_can_seek": True,
-			"moder_can_skip": True,
-			"moder_can_use_chat": True,
-			"moder_can_kick": True, 
-			"guest_can_add": True, 
-			"guest_can_remove": True, 
-			"guest_can_move": True, 
-			"guest_can_playpause": True, 
-			"guest_can_seek": True, 
-			"guest_can_skip": True, 
-			"guest_can_use_chat": True, 
-			"guest_can_kick": True,
-		}
 
+		if followed_the_link:
+			request.session.pop("followed_the_link", None)
+			room_name = followed_the_link["room_name"]
+			queryset = Room.objects.filter(code=room_name)
+			if queryset.exists():
+				room = queryset[0]
+				request.session["post_data"] = {'user_status': "GU",
+					'room': RoomSerializer(room).data['id'],
+					'room_name': room_name,
+				}
+				return redirect(f"http://127.0.0.1:8000/api/user/")
+			else:
+				request.session["room_not_found"] = {"room_not_found": True}
+				return redirect(f"http://127.0.0.1:8000/rooms/{room_name}/")
+
+		request.session["post_data"] = OWNER_RIGHTS
+			
 		return redirect(f"http://127.0.0.1:8000/api/room/")

@@ -23,20 +23,14 @@ class CreateUserAPIView(APIView):
 	renderer_classes = [JSONRenderer, ]
 
 	def get(self, request, format=None):
-		request.headers = request.session.get("head_data", None)
-		request.data.update(request.session.get("post_data", None))
+		request.headers = request.session.get("head_data", {})
+		request.data.update(request.session.get("post_data", {}))
 
-		room_name = request.data.pop("room_name", None)
-		
 		response = self.post(request)
 
-		if response.status_code == 400:
-			return redirect(f"http://127.0.0.1:8000/rooms/{room_name}/room-not-found/")
-
-		return redirect(f"http://127.0.0.1:8000/rooms/{room_name}/watch/")
+		return redirect(f"http://127.0.0.1:8000/rooms/{request.data['room_name']}/")
 
 	def post(self, request, format=None):
-		print(request.data)
 		serializer = self.serializer_class(data=request.data)
 		if serializer.is_valid():
 			session_key = request.headers['X-CSRFToken']

@@ -28,35 +28,27 @@ class RoomsView(View):
 
 class RoomView(View):
 	def get(self, request, room_name, format=None):
-		queryset = Room.objects.filter(code=room_name)
-		if queryset.exists():
-			room = queryset[0]
-			room_data = RoomSerializer(room).data
-			
-			if not request.session.session_key:
-				request.session.create()
-
-			session_key = request.session.session_key
-			user_status = 'HO' if room_data['host'] == session_key else 'GU'
-
-			request.session["head_data"] = {'X-CSRFToken': session_key}
-			request.session["post_data"] = {'user_status': user_status,
-				'room': room_data['id'],
-				'room_name': room_name,
+		if not request.session.session_key:
+			request.session["followed_the_link"] = {"followed_the_link": True,
+				"room_name": room_name,
 			}
-		
-			return redirect("http://127.0.0.1:8000/api/user/")		
+			return redirect("http://127.0.0.1:8000/create/")
+
+		if request.session.get("room_not_found", None):
+			request.session.pop("room_not_found", None)
+			return self.room_not_found_render(request, room_name)
+		else:
+			return self.room_render(request, room_name)
+
+	def room_not_found_render(self, request, room_name):
+		return render(request, 'rooms/roomnfound.html', {
+			'room_name': room_name,
+			'error_message': status.HTTP_404_NOT_FOUND,
+		})
 
 
-def room_not_found(request, room_name):
-	return render(request, 'rooms/roomnfound.html', {
-		'room_name': room_name,
-		'error_message': status.HTTP_404_NOT_FOUND,
-	})
-
-
-def room(request, room_name):
-	return render(request, 'rooms/index.html', {
-		'room_name': room_name,
-		'error_message': status.HTTP_200_OK,
-	})
+	def room_render(self, request, room_name):
+		return render(request, 'rooms/index.html', {
+			'room_name': room_name,
+			'error_message': status.HTTP_200_OK,
+		})
