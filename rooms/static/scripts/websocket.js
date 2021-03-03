@@ -1,4 +1,5 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
+const sessionKey = JSON.parse(document.getElementById('session-key').textContent);
 const chatSocket = new WebSocket(
 	'ws://' +
 	window.location.host +
@@ -21,7 +22,9 @@ document.querySelector('#chat_input').onkeyup = function(e) {
 		const messageInputDom = document.querySelector('#chat_input');
 		const message = messageInputDom.value;
 		chatSocket.send(JSON.stringify({
-			'message': message
+			'message': message,
+			'author': sessionKey,
+			'room_name': roomName
 		}));
 		messageInputDom.value = '';
 	}

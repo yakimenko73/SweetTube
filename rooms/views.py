@@ -76,5 +76,6 @@ class RoomView(View):
 	def room_render(self, request, room_name):
 		return render(request, 'rooms/index.html', {
 			'room_name': room_name,
+			'session_key': request.session.session_key,
 			'error_message': status.HTTP_200_OK,
 		})

@@ -11,6 +11,7 @@
 		<script type="text/javascript" id="www-widgetapi-script" src="https://www.youtube.com/s/player/2e6e57d8/www-widgetapi.vflset/www-widgetapi.js" async=""></script>
 		<script src="https://www.youtube.com/iframe_api"></script>
 		{{ room_name|json_script:"room-name" }}
+		{{ session_key|json_script:"session-key" }}
 		<script async src="/static/scripts/websocket.js"></script>
 	</head>
 	<body>
