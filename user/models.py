@@ -14,7 +14,7 @@ class User(models.Model):
 		(MODERATOR, 'Moderator'),
 		(GUEST, 'Guest'),
 	)
-	session_key = models.CharField(max_length=40, default=None, unique=True)
+	session_key = models.CharField(max_length=40, default=None)
 	user_status = models.CharField(max_length=2, 
 		choices=USER_STATUS_CHOICES, 
 		default=GUEST)

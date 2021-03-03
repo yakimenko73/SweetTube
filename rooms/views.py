@@ -27,25 +27,51 @@ class RoomsView(View):
 
 
 class RoomView(View):
-	def get(self, request, room_name, format=None):
-		if not request.session.session_key:
-			request.session["followed_the_link"] = {"followed_the_link": True,
-				"room_name": room_name,
-			}
-			return redirect("http://127.0.0.1:8000/create/")
-
-		if request.session.get("room_not_found", None):
-			request.session.pop("room_not_found", None)
-			return self.room_not_found_render(request, room_name)
+	def get(self,request, room_name, format=None):
+		roomset = Room.objects.filter(code=room_name)
+		if roomset.exists():
+			room = roomset[0]
+			room_data = RoomSerializer(room).data
 		else:
-			return self.room_render(request, room_name)
+			return self.room_not_found_render(request, room_name)
 
+		if not request.session.session_key:
+			request.session.create()
+			request.session.set_expiry(0)
+			return self.create_guest_session(request, room_name, room_data["id"])
+		
+		userset = User.objects.filter(session_key=request.session.session_key).order_by("room")[:1]
+		user_data = UserSerializer(userset[0]).data
+		if user_data["room"] == room_data["id"]:
+			return self.room_render(request, room_name)
+		else:
+			return self.create_guest_session(request, room_name, room_data["id"])
+
+	def create_guest_session(self, request, room_name, room_id):
+		request.session["head_data"] = {"X-CSRFToken": request.session.session_key}
+		request.session["post_data"] ={'user_status': "GU",
+			'room': room_id,
+			'room_name': room_name,
+		}
+		return redirect(f"http://127.0.0.1:8000/api/user/")
+			
 	def room_not_found_render(self, request, room_name):
 		return render(request, 'rooms/roomnfound.html', {
 			'room_name': room_name,
 			'error_message': status.HTTP_404_NOT_FOUND,
 		})
 
+	def already_in_the_room(self, request, room_name):
+		return render(request, 'rooms/already_in_the_room.html', {
+			'room_name': room_name,
+			'error_message': status.HTTP_200_OK,
+		})
+
+	def already_have_a_room(self, request, room_name):
+		return render(request, 'rooms/already_have_a_room.html', {
+			'room_name': room_name,
+			'error_message': status.HTTP_200_OK,
+		})
 
 	def room_render(self, request, room_name):
 		return render(request, 'rooms/index.html', {

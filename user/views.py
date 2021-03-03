@@ -38,16 +38,12 @@ class CreateUserAPIView(APIView):
 			user_status = serializer.data.get('user_status')
 			room_id = serializer.data.get('room')
 			
-			queryset = User.objects.filter(session_key=session_key)
-			if queryset.exists():
-				user = queryset[0]
-				return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-			else:
-				user = User(session_key=session_key, 
-							user_status=user_status,
-							room_id=room_id)
-				user.save()
-				return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+			user = User(session_key=session_key, 
+				user_status=user_status,
+				room_id=room_id,
+			)
+			user.save()
+			return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 

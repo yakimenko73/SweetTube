@@ -10,6 +10,9 @@ room/migrations/__pycache__/*.*
 rooms/migrations/__pycache__/*.*
 user/migrations/__pycache__/*.*
 chat/__pycache__/*.*
+chat/migrations/*.*
+chat/migrations/__pycache__/*.*
+user/migrations/*.*
 SweetTube/__pycache__/*.*
 .idea
 GIT README.txt
