@@ -12,7 +12,7 @@
 		<script src="https://www.youtube.com/iframe_api"></script>
 		{{ room_name|json_script:"room-name" }}
 		{{ user_nickname|json_script:"user-nickname" }}
-		<script async src="/static/scripts/websocket.js"></script>
+		<script async src="/static/scripts/room.js"></script>
 	</head>
 	<body>
 		<header>
@@ -74,7 +74,8 @@
 								<div class="edge"></div>
 							</div>
 							<div class="chat tab_visible tab">
-								<textarea id="chat-log" cols="100" rows="20"></textarea><br>
+								<div class="log" id="chat_log">
+								</div>
 								<div class="input">
 									<input type="text" spellcheck="false" id="chat_input">
 									<div class="btn" id="btn_chat_emotes"><img src="/static/images/emote.png"></div>

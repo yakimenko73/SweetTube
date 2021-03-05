@@ -16,10 +16,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 		if self.receive.__defaults__[0]:
-			for message in self.receive.__defaults__[0]:
-				if message[0] == self.room_name:
+			for content in self.receive.__defaults__[0]:
+				if content[0] == self.room_name:
 					await self.send(text_data=json.dumps({
-						'message': message[1]
+						'message': content[1],
+						'author': content[2],
 					}))
 
 	async def disconnect(self, close_code):
@@ -40,15 +41,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			{
 				'type': 'chat_message',
 				'message': message,
+				'author': author,
 			}
 		)
 
-		messages.append([self.room_name, message])
+		messages.append([self.room_name, message, author])
 
 	async def chat_message(self, event):
 		''' Receive message from room group '''
 		message = event['message']
+		author = event['author']
 
 		await self.send(text_data=json.dumps({
-			'message': message
+			'message': message, 
+			'author': author
 		}))
