@@ -19,17 +19,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 		sessions.append([self.room_name, self.session_key])
-		unique_sessions = set([str(session) for session in sessions])
-		user_counter = 0
-		for session in unique_sessions:
-			if session.startswith(f"['{self.room_name}'"):
-				user_counter += 1
+		self.unique_sessions = set([str(session) for session in sessions])
+
+		number_users = self.number_users_in_room()
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'chat_visitors',
-				'number_visitors': user_counter
+				'number_visitors': number_users
 			}
 		)
 
@@ -43,6 +41,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					}))
 
 	async def disconnect(self, close_code):
+		current_session = [f'{self.room_name}', f'{self.session_key}']
+		self.unique_sessions.remove(str(current_session))
+		number_users = self.number_users_in_room()
+
+		await self.channel_layer.group_send(
+			self.room_group_name,
+			{
+				'type': 'chat_visitors',
+				'number_visitors': number_users
+			}
+		)
+		
 		await self.channel_layer.group_discard(
 			self.room_group_name,
 			self.channel_name
@@ -83,3 +93,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'type': "visitors",
 			'number_visitors': number_visitors
 		}))
+
+	def number_users_in_room(self):
+		count = 0
+		for session in self.unique_sessions:
+			if session.startswith(f"['{self.room_name}'"):
+				count += 1
+		return count
