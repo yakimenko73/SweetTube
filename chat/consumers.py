@@ -2,10 +2,6 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import Message
-from room.models import Room
-from room.serializers import RoomSerializer
-
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -19,10 +15,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 		await self.accept()
 
-		for message in self.receive.__defaults__:
-			await self.send(text_data=json.dumps({
-				'message': message
-			}))
+		if self.receive.__defaults__[0]:
+			for message in self.receive.__defaults__[0]:
+				if message[0] == self.room_name:
+					await self.send(text_data=json.dumps({
+						'message': message[1]
+					}))
 
 	async def disconnect(self, close_code):
 		await self.channel_layer.group_discard(
@@ -33,25 +31,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data, messages=[]):
 		''' Receive message from WebSocket '''
 		text_data_json = json.loads(text_data)
-		content = text_data_json['message']
+		message = text_data_json['message']
 		author = text_data_json['author']
-		room_name = text_data_json['room_name']
-
-		messages.append(content)
-
+		
 		# Send message to room group
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'chat_message',
-				'message': content
+				'message': message,
 			}
 		)
 
+		messages.append([self.room_name, message])
+
 	async def chat_message(self, event):
 		''' Receive message from room group '''
-		content = event['message']
+		message = event['message']
 
 		await self.send(text_data=json.dumps({
-			'message': content
+			'message': message
 		}))

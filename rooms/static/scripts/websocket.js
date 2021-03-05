@@ -1,5 +1,5 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
-const sessionKey = JSON.parse(document.getElementById('session-key').textContent);
+const userNickname = JSON.parse(document.getElementById('user-nickname').textContent);
 const chatSocket = new WebSocket(
 	'ws://' +
 	window.location.host +
@@ -14,7 +14,7 @@ chatSocket.onmessage = function(e) {
 };
 
 chatSocket.onclose = function(e) {
-	alert('Chat socket closed unexpectedly');
+	console.log('Chat socket closed unexpectedly');
 };
 
 document.querySelector('#chat_input').onkeyup = function(e) {
@@ -23,8 +23,7 @@ document.querySelector('#chat_input').onkeyup = function(e) {
 		const message = messageInputDom.value;
 		chatSocket.send(JSON.stringify({
 			'message': message,
-			'author': sessionKey,
-			'room_name': roomName
+			'author': userNickname,
 		}));
 		messageInputDom.value = '';
 	}

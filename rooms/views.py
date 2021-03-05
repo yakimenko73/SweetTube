@@ -43,9 +43,10 @@ class RoomView(View):
 		userset = User.objects.filter(session_key=request.session.session_key).order_by("room")[:1]
 		user_data = UserSerializer(userset[0]).data
 		if user_data["room"] == room_data["id"]:
-			return self.room_render(request, room_name)
+			return self.room_render(request, room_data, user_data)
 		else:
 			return self.create_guest_session(request, room_name, room_data["id"])
+
 
 	def create_guest_session(self, request, room_name, room_id):
 		request.session["head_data"] = {"X-CSRFToken": request.session.session_key}
@@ -67,15 +68,10 @@ class RoomView(View):
 			'error_message': status.HTTP_200_OK,
 		})
 
-	def already_have_a_room(self, request, room_name):
-		return render(request, 'rooms/already_have_a_room.html', {
-			'room_name': room_name,
-			'error_message': status.HTTP_200_OK,
-		})
-
-	def room_render(self, request, room_name):
+	def room_render(self, request, room_data, user_data):
 		return render(request, 'rooms/index.html', {
-			'room_name': room_name,
-			'session_key': request.session.session_key,
+			'room_name': room_data["code"],
+			'room_id': room_data["id"],
+			'user_nickname': user_data["user_nickname"],
 			'error_message': status.HTTP_200_OK,
 		})

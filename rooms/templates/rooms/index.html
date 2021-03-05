@@ -1,6 +1,6 @@
 <html lang="en">
 	<head>
-		<title>Room #323 - SweetTube</title>
+		<title>Room #{{ room_id }} - SweetTube</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="Watch YouTube videos together. Create rooms, manage permissions and chat while watching videos synchronized with your friends!">
@@ -11,7 +11,7 @@
 		<script type="text/javascript" id="www-widgetapi-script" src="https://www.youtube.com/s/player/2e6e57d8/www-widgetapi.vflset/www-widgetapi.js" async=""></script>
 		<script src="https://www.youtube.com/iframe_api"></script>
 		{{ room_name|json_script:"room-name" }}
-		{{ session_key|json_script:"session-key" }}
+		{{ user_nickname|json_script:"user-nickname" }}
 		<script async src="/static/scripts/websocket.js"></script>
 	</head>
 	<body>
@@ -20,7 +20,7 @@
 				<div class="logo noselect">
 					<a style="text-decoration: none;" href="/">SweetTube</a>
 				</div>
-				<div class="roomName noselect">Room #323</div>
+				<div class="roomName noselect">Room #{{ room_id }}</div>
 				<div class="search_input_wrapper"><input class="searchInput" type="text" placeholder="Enter YouTube URL here"></div>
 			</div>
 			<div class="user_popup">
@@ -74,9 +74,6 @@
 								<div class="edge"></div>
 							</div>
 							<div class="chat tab_visible tab">
-								{% comment %} <div class="log" id="chat_log">
-									<li><span style="color: rgb(100, 100, 100);">Киево-могилянская академия joined the room</span></li>
-								</div> {% endcomment %}
 								<textarea id="chat-log" cols="100" rows="20"></textarea><br>
 								<div class="input">
 									<input type="text" spellcheck="false" id="chat_input">
