@@ -6,7 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	search_sessionid = re.compile("sessionid=\w+")
-	async def connect(self, sessions=[]):
+	async def connect(self, sessions={}):
 		self.session_key = re.findall(self.search_sessionid, str(self.scope["headers"]))[0].replace("sessionid=", "")
 		self.room_name = self.scope['url_route']['kwargs']['room_name']
 		self.room_group_name = f'chat_{self.room_name}'
@@ -15,19 +15,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		
+
 		await self.accept()
 
-		sessions.append([self.room_name, self.session_key])
-		self.unique_sessions = set([str(session) for session in sessions])
+		try:
+			sessions[self.room_name].append(self.session_key)
+		except KeyError:
+			sessions[self.room_name] = [self.session_key, ]
 
-		number_users = self.number_users_in_room()
+		number_users = self.number_users_in_room(sessions)
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'chat_visitors',
-				'number_visitors': number_users
+				'value': number_users,
+				'isIncrement': False
 			}
 		)
 
@@ -41,15 +44,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					}))
 
 	async def disconnect(self, close_code):
-		current_session = [f'{self.room_name}', f'{self.session_key}']
-		self.unique_sessions.remove(str(current_session))
-		number_users = self.number_users_in_room()
-
+		sessions = self.connect.__defaults__[0][self.room_name]
+		sessions.remove(self.session_key)
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'chat_visitors',
-				'number_visitors': number_users
+				'value': -1,
+				'isIncrement': True
 			}
 		)
 		
@@ -87,16 +89,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def chat_visitors(self, event):
 		''' Receive number visitors from room group '''
-		number_visitors = event['number_visitors']
+		value = event['value']
+		is_increment = event["isIncrement"]
 
 		await self.send(text_data=json.dumps({
 			'type': "visitors",
-			'number_visitors': number_visitors
+			'value': value,
+			'isIncrement': is_increment
 		}))
 
-	def number_users_in_room(self):
-		count = 0
-		for session in self.unique_sessions:
-			if session.startswith(f"['{self.room_name}'"):
-				count += 1
-		return count
+	def number_users_in_room(self, sessions):
+		number_users = len(sessions[self.room_name])
+		return number_users

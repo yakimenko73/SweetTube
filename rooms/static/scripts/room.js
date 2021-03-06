@@ -10,11 +10,11 @@ const chatSocket = new WebSocket(
 
 chatSocket.onmessage = function(e) {
 	const data = JSON.parse(e.data);
-    if (data.type === "visitors") {
-        updateUserCounter(isIncrement=false, isAdd=false, count=data.number_visitors);
-    }
-    else
-	    addMessageToChatArea(data.message, 'green', data.author)
+	if (data.type === "visitors") {
+		updateUserCounter(isIncrement=data.isIncrement, count=data.value);
+	}
+	else
+		addMessageToChatArea(data.message, 'green', data.author)
 };
 
 chatSocket.onclose = function(e) {
@@ -37,59 +37,57 @@ document.querySelector('#chat_input').onkeyup = function(e) {
 	};
 };
 
-function addMessageToChatArea(message, color_for_username=null, mailer=null) {
-    let type_message = 0;
-    
-    let styles_for_message = [
-        [ "color: rgb(100, 100, 100)" ],
-        [
-            `font-weight: bold; color: ${color_for_username}`,
-            "color: rgb(180, 180, 180)",
-        ]
-    ];
+function addMessageToChatArea(message, colorForUsernName=null, mailer=null) {
+	let typeMesssage = 0;
+	
+	let stylesForMessage = [
+		[ "color: rgb(100, 100, 100)" ],
+		[
+			`font-weight: bold; color: ${colorForUsernName}`,
+			"color: rgb(180, 180, 180)",
+		]
+	];
 
-    let text_for_message = [
-        [ message ],
-        [ mailer, `: ${message}` ]
-    ];
+	let textForMessage = [
+		[ message ],
+		[ mailer, `: ${message}` ]
+	];
 
-    let chat_log = document.getElementById("chat_log");
-    let new_message = document.createElement("li");
+	let chatLog = document.getElementById("chat_log");
+	let newMessage = document.createElement("li");
 
-    if (message=="")
-        return
+	if (message=="")
+		return
 
-    if (mailer!=null) // if mailer == null -> system message
-        type_message = 1;
+	if (mailer!=null) // if mailer == null -> system message
+		typeMesssage = 1;
 
-    for(let text_message = 0; text_message < text_for_message[type_message].length; text_message++) {
-        let style = styles_for_message[type_message][text_message];
-        let text = text_for_message[type_message][text_message];
-        let span = makeSpan(style, text);
-        new_message.appendChild(span);
-    }
+	for(let textMessage = 0; textMessage < textForMessage[type_message].length; textMessage++) {
+		let style = stylesForMessage[typeMesssage][textMessage];
+		let text = textForMessage[typeMesssage][textMessage];
+		let span = makeSpan(style, text);
+		newMessage.appendChild(span);
+	}
 
-    chat_log.appendChild(new_message);
+	chatLog.appendChild(newMessage);
 };
 
 function makeSpan(style, text) {
-    let span = document.createElement("span");
-    span.style = style;
-    span.textContent = text;
-    return span;
+	let span = document.createElement("span");
+	span.style = style;
+	span.textContent = text;
+	return span;
 };
 
-function updateUserCounter(isIncrement=true, isAdd=true, count=1) {
-    let userCounter = document.getElementById("user-counter");
-    let oldCounter = Number(userCounter.textContent);
-    if(isIncrement) {
-        if(!isAdd)
-            count *= -1
-        var newCounter = oldCounter + count;
-    }
-    else
-        var newCounter = count;
-    if (newCounter < 0)
-        newCounter = 0;
-    userCounter.textContent = newCounter;
+function updateUserCounter(isIncrement=true, count=1) {
+	let userCounter = document.getElementById("user-counter");
+	let oldCounter = Number(userCounter.textContent);
+	if(isIncrement) {
+		var newCounter = oldCounter + count;
+	}
+	else
+		var newCounter = count;
+	if (newCounter < 0)
+		newCounter = 0;
+	userCounter.textContent = newCounter;
 };
