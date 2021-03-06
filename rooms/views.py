@@ -42,14 +42,19 @@ class RoomView(View):
 		
 		userset = User.objects.filter(room=room_data["id"])
 		session_keys_users = []
+		current_session_key = request.session.session_key
+
 		for user in userset:
 			user_data = UserSerializer(user).data
 			session_keys_users.append(user_data["session_key"])
-		if request.session.session_key in session_keys_users:
+
+		if current_session_key in session_keys_users:
+			user = User.objects.filter(session_key=current_session_key)
+			user_data = UserSerializer(user[0]).data
 			return self.room_render(request, room_data, user_data)
 		else:
 			return self.create_guest_user(request, room_name, room_data["id"])
-
+	
 
 	def create_guest_user(self, request, room_name, room_id):
 		request.session["head_data"] = {"X-CSRFToken": request.session.session_key}
@@ -65,7 +70,7 @@ class RoomView(View):
 			'error_message': status.HTTP_404_NOT_FOUND,
 		})
 
-	def already_in_the_room(self, request, room_name):
+	def already_in_the_room_render(self, request, room_name):
 		return render(request, 'rooms/already_in_the_room.html', {
 			'room_name': room_name,
 			'error_message': status.HTTP_200_OK,

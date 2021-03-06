@@ -11,19 +11,31 @@ const socket = new WebSocket(
 
 socket.onmessage = function(e) {
 	const data = JSON.parse(e.data);
-	if (data.type === "visitors") {
+	if (data.type === "visitors")
 		updateUserCounter(isIncrement=data.isIncrement, count=data.value);
-	}
+	else if (data.type === "system_message")
+		addMessageToChatArea(data.message)
 	else
 		addMessageToChatArea(data.message, data.color, data.author)
 };
 
-socket.onclose = function(e) {
-	console.log("Web socket closed unexpectedly");
+socket.onopen = function(e) {
+	socket.send(JSON.stringify({
+		'type': "system_message",
+		'message': "joined the room",
+		'author': userNickname,
+		'color': null,
+	}));
 };
 
-socket.onopen = function(e) {
-	console.log("Web socket opened");
+socket.onclose = function(e) {
+	// does not work :(
+	socket.send(JSON.stringify({
+		'type': "system_message",
+		'message': "left the room",
+		'author': userNickname,
+		'color': null,
+	}));
 };
 
 document.querySelector('#chat_input').onkeyup = function(e) {
@@ -31,6 +43,7 @@ document.querySelector('#chat_input').onkeyup = function(e) {
 		const messageInputDom = document.querySelector('#chat_input');
 		const message = messageInputDom.value;
 		socket.send(JSON.stringify({
+			'type': "chat_message",
 			'message': message,
 			'author': userNickname,
 			'color': userColor,

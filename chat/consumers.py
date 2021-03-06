@@ -64,21 +64,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data, messages=[]):
 		''' Receive message from WebSocket '''
 		text_data_json = json.loads(text_data)
+		message_type = text_data_json["type"]
 		message = text_data_json['message']
 		author = text_data_json['author']
 		color = text_data_json['color']
-		
+
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
-				'type': 'chat_message',
+				'type': message_type,
 				'message': message,
 				'author': author,
 				'color': color,
 			}
 		)
 
-		messages.append([self.room_name, message, author, color])
+		if message_type != "system_message":
+			messages.append([self.room_name, message, author, color])
 
 	async def chat_message(self, event):
 		''' Receive message from room group '''
@@ -101,6 +103,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'type': "visitors",
 			'value': value,
 			'isIncrement': is_increment
+		}))
+
+	async def system_message(self, event):
+		''' Receive system messages from room group '''
+		message = event['message']
+		author = event["author"]
+
+		await self.send(text_data=json.dumps({
+			'type': "system_message",
+			'message': f'{author} {message}'
 		}))
 
 	def number_users_in_room(self, sessions):

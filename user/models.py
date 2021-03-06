@@ -42,6 +42,7 @@ class User(models.Model):
 	user_status = models.CharField(max_length=2, 
 		choices=USER_STATUS_CHOICES, 
 		default=GUEST)
+
 	user_nickname = models.CharField(max_length=40, default=generate_user_nickname)
 	user_color = models.CharField(max_length=40, default=generate_user_color)
 	room = models.ForeignKey(Room, on_delete=models.CASCADE)
