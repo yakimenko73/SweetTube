@@ -20,7 +20,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 		try:
 			sessions[self.room_name].append(self.session_key)
-		except KeyError:
+		except KeyError as ex:
 			sessions[self.room_name] = [self.session_key, ]
 
 		number_users = self.number_users_in_room(sessions)

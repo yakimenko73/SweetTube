@@ -45,12 +45,30 @@ class CreateUserAPIView(APIView):
 			user.save()
 			return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
-		return Response({'Bad request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'Bad request': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateUserAPIView(RetrieveUpdateDestroyAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+class UserAPIView(RetrieveUpdateDestroyAPIView):
+	def get_object(self, pk):
+		return get_object_or_404(User, pk=pk)
+
+	def get(self, request, pk, format=None):
+		user = self.get_object(pk)
+		serializer = UserSerializer(user)
+		return Response(serializer.data)
+
+	def put(self, request, pk, format=None):
+		user = self.get_object(pk)
+		serializer = UserSerializer(user)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response({'Bad request': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+
+	def delete(self, request, pk, format=None):
+		user = self.get_object(pk)
+		user.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ListUserAPIView(ListAPIView):

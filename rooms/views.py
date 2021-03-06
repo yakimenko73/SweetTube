@@ -27,7 +27,7 @@ class RoomsView(View):
 
 
 class RoomView(View):
-	def get(self,request, room_name, format=None):
+	def get(self, request, room_name, format=None):
 		roomset = Room.objects.filter(code=room_name)
 		if roomset.exists():
 			room = roomset[0]
@@ -38,17 +38,22 @@ class RoomView(View):
 		if not request.session.session_key:
 			request.session.create()
 			request.session.set_expiry(0)
-			return self.create_guest_session(request, room_name, room_data["id"])
+			return self.create_guest_user(request, room_name, room_data["id"])
 		
-		userset = User.objects.filter(session_key=request.session.session_key).order_by("room")[:1]
-		user_data = UserSerializer(userset[0]).data
-		if user_data["room"] == room_data["id"]:
+		userset = User.objects.filter(room=room_data["id"])
+		session_keys_users = []
+		nicknames_users = []
+		for user in userset:
+			user_data = UserSerializer(user).data
+			session_keys_users.append(user_data["session_key"])
+			nicknames_users.append(user_data["user_nickname"])
+		if request.session.session_key in session_keys_users:
 			return self.room_render(request, room_data, user_data)
 		else:
-			return self.create_guest_session(request, room_name, room_data["id"])
+			return self.create_guest_user(request, room_name, room_data["id"])
 
 
-	def create_guest_session(self, request, room_name, room_id):
+	def create_guest_user(self, request, room_name, room_id):
 		request.session["head_data"] = {"X-CSRFToken": request.session.session_key}
 		request.session["post_data"] ={'user_status': "GU",
 			'room': room_id,

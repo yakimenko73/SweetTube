@@ -1,6 +1,6 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 const userNickname = JSON.parse(document.getElementById('user-nickname').textContent);
-const chatSocket = new WebSocket(
+const socket = new WebSocket(
 	'ws://' +
 	window.location.host +
 	'/ws/chat/' +
@@ -8,7 +8,7 @@ const chatSocket = new WebSocket(
 	'/'
 );
 
-chatSocket.onmessage = function(e) {
+socket.onmessage = function(e) {
 	const data = JSON.parse(e.data);
 	if (data.type === "visitors") {
 		updateUserCounter(isIncrement=data.isIncrement, count=data.value);
@@ -17,19 +17,19 @@ chatSocket.onmessage = function(e) {
 		addMessageToChatArea(data.message, 'green', data.author)
 };
 
-chatSocket.onclose = function(e) {
-	console.log('Chat socket closed unexpectedly');
+socket.onclose = function(e) {
+	console.log("Web socket closed unexpectedly");
 };
 
-chatSocket.onopen = function(e) {
-	console.log('Chat socket open');
+socket.onopen = function(e) {
+	console.log("Web socket opened");
 };
 
 document.querySelector('#chat_input').onkeyup = function(e) {
 	if (e.keyCode === 13) { // enter, return
 		const messageInputDom = document.querySelector('#chat_input');
 		const message = messageInputDom.value;
-		chatSocket.send(JSON.stringify({
+		socket.send(JSON.stringify({
 			'message': message,
 			'author': userNickname,
 		}));
@@ -62,7 +62,7 @@ function addMessageToChatArea(message, colorForUsernName=null, mailer=null) {
 	if (mailer!=null) // if mailer == null -> system message
 		typeMesssage = 1;
 
-	for(let textMessage = 0; textMessage < textForMessage[type_message].length; textMessage++) {
+	for(let textMessage = 0; textMessage < textForMessage[typeMesssage].length; textMessage++) {
 		let style = stylesForMessage[typeMesssage][textMessage];
 		let text = textForMessage[typeMesssage][textMessage];
 		let span = makeSpan(style, text);
