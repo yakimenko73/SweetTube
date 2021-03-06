@@ -17,4 +17,5 @@ SweetTube/__pycache__/*.*
 .idea
 GIT README.txt
 db.*
+parse.js
 sweettube-env/

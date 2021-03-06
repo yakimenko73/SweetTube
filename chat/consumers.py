@@ -40,7 +40,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				if message[0] == self.room_name:
 					await self.send(text_data=json.dumps({
 						'message': message[1],
-						'author': message[2]
+						'author': message[2],
+						'color': message[3],
 					}))
 
 	async def disconnect(self, close_code):
@@ -65,6 +66,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		text_data_json = json.loads(text_data)
 		message = text_data_json['message']
 		author = text_data_json['author']
+		color = text_data_json['color']
 		
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -72,19 +74,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'type': 'chat_message',
 				'message': message,
 				'author': author,
+				'color': color,
 			}
 		)
 
-		messages.append([self.room_name, message, author])
+		messages.append([self.room_name, message, author, color])
 
 	async def chat_message(self, event):
 		''' Receive message from room group '''
 		message = event['message']
 		author = event['author']
+		color = event['color']
 
 		await self.send(text_data=json.dumps({
 			'message': message, 
-			'author': author
+			'author': author,
+			'color': color,
 		}))
 
 	async def chat_visitors(self, event):

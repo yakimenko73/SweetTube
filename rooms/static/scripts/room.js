@@ -1,5 +1,6 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 const userNickname = JSON.parse(document.getElementById('user-nickname').textContent);
+const userColor = JSON.parse(document.getElementById('user-color').textContent);
 const socket = new WebSocket(
 	'ws://' +
 	window.location.host +
@@ -14,7 +15,7 @@ socket.onmessage = function(e) {
 		updateUserCounter(isIncrement=data.isIncrement, count=data.value);
 	}
 	else
-		addMessageToChatArea(data.message, 'green', data.author)
+		addMessageToChatArea(data.message, data.color, data.author)
 };
 
 socket.onclose = function(e) {
@@ -32,6 +33,7 @@ document.querySelector('#chat_input').onkeyup = function(e) {
 		socket.send(JSON.stringify({
 			'message': message,
 			'author': userNickname,
+			'color': userColor,
 		}));
 		messageInputDom.value = '';
 	};

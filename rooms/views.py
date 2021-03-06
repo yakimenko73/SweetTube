@@ -42,11 +42,9 @@ class RoomView(View):
 		
 		userset = User.objects.filter(room=room_data["id"])
 		session_keys_users = []
-		nicknames_users = []
 		for user in userset:
 			user_data = UserSerializer(user).data
 			session_keys_users.append(user_data["session_key"])
-			nicknames_users.append(user_data["user_nickname"])
 		if request.session.session_key in session_keys_users:
 			return self.room_render(request, room_data, user_data)
 		else:
@@ -78,5 +76,6 @@ class RoomView(View):
 			'room_name': room_data["code"],
 			'room_id': room_data["id"],
 			'user_nickname': user_data["user_nickname"],
+			'user_color': user_data["user_color"],
 			'error_message': status.HTTP_200_OK,
 		})
