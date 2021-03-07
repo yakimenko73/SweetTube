@@ -11,3 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('user_status', 'user_nickname', 'user_color', 'room', )
+
+class UserSessionSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ('session', )

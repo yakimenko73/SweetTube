@@ -12,10 +12,10 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from room.serializers import RoomSerializer, RoomSettingsSerializer
-from user.serializers import UserSerializer
+from user.serializers import UserSerializer, UserSessionSerializer, SessionSerializer
 
 from room.models import Room
-from user.models import User
+from user.models import User, Session
 
 
 class ListRoomView(View):
@@ -41,10 +41,11 @@ class RoomView(View):
 		session_keys_users = []
 		current_session_key = request.session.session_key
 
-		for user in userset:
+		for index, user in enumerate(userset):
 			user_data = UserSerializer(user).data
-			session_keys_users.append(user_data["session_key"])
-
+			user_sessionid = UserSessionSerializer(user).data["session"]
+			session_session_key = Session.objects.filter(id=user_sessionid)[0].session_key
+			session_keys_users.append(session_session_key)
 		if current_session_key in session_keys_users:
 			for index, session in enumerate(session_keys_users):
 				if current_session_key == session:
