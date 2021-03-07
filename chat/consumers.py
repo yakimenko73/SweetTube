@@ -2,12 +2,13 @@ import json
 import re
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from user.models import User
+from user.serializers import UserSerializer
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
-	search_sessionid = re.compile("sessionid=\w+")
 	async def connect(self, sessions={}):
-		self.session_key = re.findall(self.search_sessionid, str(self.scope["headers"]))[0].replace("sessionid=", "")
+		self.session_key = self.scope["cookies"]["sessionid"]
 		self.room_name = self.scope['url_route']['kwargs']['room_name']
 		self.room_group_name = f'chat_{self.room_name}'
 
@@ -25,6 +26,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 		number_users = self.number_users_in_room(sessions)
 
+		# send current number users in room
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
@@ -47,6 +49,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		sessions = self.connect.__defaults__[0][self.room_name]
 		sessions.remove(self.session_key)
+
+		# sending a new users counter state
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{

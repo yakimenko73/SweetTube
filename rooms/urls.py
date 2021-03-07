@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import RoomsView, RoomView
+from django.views.decorators.csrf import csrf_exempt
+from .views import ListRoomView, RoomView
 
 
 urlpatterns = [
-	path(r'rooms/', RoomsView.as_view()),
-	path(r'rooms/<str:room_name>/', RoomView.as_view()),
+	path(r'rooms/', ListRoomView.as_view()),
+	path(r'rooms/<str:room_name>/', csrf_exempt(RoomView.as_view())),
 ]

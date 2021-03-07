@@ -10,8 +10,6 @@ from rest_framework.generics import RetrieveDestroyAPIView, RetrieveUpdateDestro
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
 
 from room.serializers import RoomSerializer, RoomSettingsSerializer
 from user.serializers import UserSerializer
@@ -20,7 +18,7 @@ from room.models import Room
 from user.models import User
 
 
-class RoomsView(View):
+class ListRoomView(View):
 	def get(self, request, format=None):
 		response = requests.get("http://127.0.0.1:8000/api/rooms/")	
 		return HttpResponse(f"{response.json()}")
@@ -37,7 +35,6 @@ class RoomView(View):
 
 		if not request.session.session_key:
 			request.session.create()
-			request.session.set_expiry(0)
 			return self.create_guest_user(request, room_name, room_data["id"])
 		
 		userset = User.objects.filter(room=room_data["id"])
@@ -49,12 +46,16 @@ class RoomView(View):
 			session_keys_users.append(user_data["session_key"])
 
 		if current_session_key in session_keys_users:
-			user = User.objects.filter(session_key=current_session_key)
+			user = User.objects.filter(room=room_data["id"])
 			user_data = UserSerializer(user[0]).data
 			return self.room_render(request, room_data, user_data)
 		else:
 			return self.create_guest_user(request, room_name, room_data["id"])
-	
+
+	def post(self, request, room_name, format=None):
+		if request.body.decode("utf-8") == "alreadyInTheRoom":
+			data = {'count': 1}
+			return self.already_in_the_room_render(request, room_name)
 
 	def create_guest_user(self, request, room_name, room_id):
 		request.session["head_data"] = {"X-CSRFToken": request.session.session_key}
@@ -81,6 +82,7 @@ class RoomView(View):
 			'room_name': room_data["code"],
 			'room_id': room_data["id"],
 			'user_nickname': user_data["user_nickname"],
+			'user_session_key': request.session.session_key,
 			'user_color': user_data["user_color"],
 			'error_message': status.HTTP_200_OK,
 		})

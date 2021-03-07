@@ -82,32 +82,27 @@ class CreateRoomAPIView(APIView):
 			guest_can_use_chat = serializer.data.get('guest_can_use_chat')
 			guest_can_kick = serializer.data.get('guest_can_kick')
 
-			queryset = Room.objects.filter(host=host)
-			if queryset.exists():
-				room = queryset[0]
+			room = Room(host=host, 
+				moder_can_add=moder_can_add, 
+				moder_can_remove=moder_can_remove,
+				moder_can_move=moder_can_move, 
+				moder_can_playpause=moder_can_playpause,
+				moder_can_seek=moder_can_seek,
+				moder_can_skip=moder_can_skip,
+				moder_can_use_chat=moder_can_use_chat,
+				moder_can_kick=moder_can_kick, 
+				guest_can_add=guest_can_add, 
+				guest_can_remove=guest_can_remove, 
+				guest_can_move=guest_can_move, 
+				guest_can_playpause=guest_can_playpause, 
+				guest_can_seek=guest_can_seek, 
+				guest_can_skip=guest_can_skip, 
+				guest_can_use_chat=guest_can_kick, 
+				guest_can_kick=guest_can_kick,
+			)
+			room.save()
 
-				return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
-			else:
-				room = Room(host=host, 
-							moder_can_add=moder_can_add, 
-							moder_can_remove=moder_can_remove,
-							moder_can_move=moder_can_move, 
-							moder_can_playpause=moder_can_playpause,
-							moder_can_seek=moder_can_seek,
-							moder_can_skip=moder_can_skip,
-							moder_can_use_chat=moder_can_use_chat,
-							moder_can_kick=moder_can_kick, 
-							guest_can_add=guest_can_add, 
-							guest_can_remove=guest_can_remove, 
-							guest_can_move=guest_can_move, 
-							guest_can_playpause=guest_can_playpause, 
-							guest_can_seek=guest_can_seek, 
-							guest_can_skip=guest_can_skip, 
-							guest_can_use_chat=guest_can_kick, 
-							guest_can_kick=guest_can_kick)
-				room.save()
-
-				return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
+			return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
 
 		return Response({'Bad request': 'Invalid data.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -124,8 +119,9 @@ class ListRoomAPIView(ListAPIView):
 
 class Create(View):
 	def get(self, request, format=None):
-		request.session.create()
-		request.session.set_expiry(0)
+		if not request.session.session_key:
+			request.session.create()
+			request.session
 		session_key = request.session.session_key
 
 		request.session["head_data"] = {"X-CSRFToken": session_key}
