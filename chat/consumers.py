@@ -2,13 +2,20 @@ import json
 import re
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+
+from room.models import Room
+from user.models import User
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self, sessions={}):
-		self.session_key = self.scope["cookies"]["sessionid"]
 		self.room_name = self.scope['url_route']['kwargs']['room_name']
+		self.room_id = await self.get_room_id()
 		self.room_group_name = f'chat_{self.room_name}'
+		self.session_key = self.scope["cookies"]["sessionid"]
+		# self.user_nickname = await self.get_user_nickname()
+		# print(self.user_nickname)
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -120,3 +127,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	def number_users_in_room(self, sessions):
 		number_users = len(sessions[self.room_name])
 		return number_users
+
+	@database_sync_to_async
+	def get_room_id(self):
+		return Room.objects.filter(code=self.room_name)[0].id
+
+	@database_sync_to_async
+	def get_user_nickname(self):
+		users_session = User.objects.filter(room=self.room_id)[0].user_nickname
+
+		return users_session

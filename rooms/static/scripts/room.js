@@ -2,7 +2,7 @@ const roomName = JSON.parse(document.getElementById('room-name').textContent);
 const userNickname = JSON.parse(document.getElementById('user-nickname').textContent);
 const userSessionid = JSON.parse(document.getElementById('user-sessionid').textContent);
 const userColor = JSON.parse(document.getElementById('user-color').textContent);
-alert(userSessionid)
+
 if (localStorage.getItem(roomName) === '1') {
 	var request = new XMLHttpRequest();
 	request.open('POST', window.location, false);  // `false` makes the request synchronous

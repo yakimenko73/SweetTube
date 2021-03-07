@@ -26,8 +26,11 @@ def generate_user_color():
 	return color
 
 
+class Session(models.Model):
+	session_key = models.CharField(max_length=40, default=None, unique=True)
+
+
 class User(models.Model):
-	""" Модель пользователя """
 	HOST = 'HO'
 	MODERATOR = 'MO'
 	GUEST = 'GU'
@@ -38,11 +41,11 @@ class User(models.Model):
 		(GUEST, 'Guest'),
 	)
 
-	session_key = models.CharField(max_length=40, default=None)
 	user_status = models.CharField(max_length=2, 
 		choices=USER_STATUS_CHOICES, 
 		default=GUEST)
 
 	user_nickname = models.CharField(max_length=40, default=generate_user_nickname)
 	user_color = models.CharField(max_length=40, default=generate_user_color)
-	room = models.ForeignKey(Room, on_delete=models.CASCADE)
+	room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='user_room')
+	session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='user_session')

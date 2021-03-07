@@ -19,8 +19,6 @@ class Room(models.Model):
 	code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
 	host = models.CharField(max_length=50)
 	
-	created_at = models.DateTimeField(auto_now_add=True)
-
 	moder_can_add = models.BooleanField(null=False, default=True)
 	moder_can_remove = models.BooleanField(null=False, default=True)
 	moder_can_move = models.BooleanField(null=False, default=True)
@@ -39,5 +37,7 @@ class Room(models.Model):
 	guest_can_use_chat = models.BooleanField(null=False, default=True)
 	guest_can_kick = models.BooleanField(null=False, default=False)
 
+	created_at = models.DateTimeField(auto_now_add=True)
+	
 	def __str__(self):
 		return f"host: {self.host}, room-code: {self.code}"
