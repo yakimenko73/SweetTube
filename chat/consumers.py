@@ -5,7 +5,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
 from room.models import Room
-from user.models import User
+from user.models import User, Session
+from user.serializers import UserSerializer, SessionSerializer, UserSessionSerializer
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -14,8 +15,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.room_id = await self.get_room_id()
 		self.room_group_name = f'chat_{self.room_name}'
 		self.session_key = self.scope["cookies"]["sessionid"]
-		# self.user_nickname = await self.get_user_nickname()
-		# print(self.user_nickname)
+		self.user_nickname = await self.get_user_nickname()
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -41,6 +41,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 
+		await self.channel_layer.group_send(
+			self.room_group_name,
+			{
+				'type': 'system_message',
+				'message': f"{self.user_nickname} joined the room"
+			}
+		)
+
 		# upload saved messages to WebSocket
 		if self.receive.__defaults__[0]:
 			for message in self.receive.__defaults__[0]:
@@ -62,6 +70,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'type': 'chat_visitors',
 				'value': -1,
 				'isIncrement': True
+			}
+		)
+
+		await self.channel_layer.group_send(
+			self.room_group_name,
+			{
+				'type': 'system_message',
+				'message': f"{self.user_nickname} left the room"
 			}
 		)
 		
@@ -117,11 +133,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def system_message(self, event):
 		''' Receive system messages from room group '''
 		message = event['message']
-		author = event["author"]
 
 		await self.send(text_data=json.dumps({
 			'type': "system_message",
-			'message': f'{author} {message}'
+			'message': message
 		}))
 
 	def number_users_in_room(self, sessions):
@@ -134,6 +149,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	@database_sync_to_async
 	def get_user_nickname(self):
-		users_session = User.objects.filter(room=self.room_id)[0].user_nickname
-
-		return users_session
+		session_id = Session.objects.filter(session_key=self.session_key)[0].id
+		user_nickname = User.objects.filter(session=session_id, room=self.room_id)[0].user_nickname
+		return user_nickname

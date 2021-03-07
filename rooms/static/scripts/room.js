@@ -32,12 +32,6 @@ else {
 	};
 
 	socket.onopen = function(e) {
-		socket.send(JSON.stringify({
-			'type': "system_message",
-			'message': "joined the room",
-			'author': userNickname,
-			'color': null,
-		}));
 		localStorage.setItem(roomName, 1);
 	};
 
