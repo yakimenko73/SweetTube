@@ -46,9 +46,10 @@ class RoomView(View):
 			session_keys_users.append(user_data["session_key"])
 
 		if current_session_key in session_keys_users:
-			user = User.objects.filter(room=room_data["id"])
-			user_data = UserSerializer(user[0]).data
-			return self.room_render(request, room_data, user_data)
+			for index, session in enumerate(session_keys_users):
+				if current_session_key == session:
+					user_data = UserSerializer(userset[index]).data
+					return self.room_render(request, room_data, user_data)
 		else:
 			return self.create_guest_user(request, room_name, room_data["id"])
 

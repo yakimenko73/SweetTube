@@ -2,8 +2,6 @@ import json
 import re
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-from user.models import User
-from user.serializers import UserSerializer
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
