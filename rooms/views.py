@@ -38,16 +38,11 @@ class RoomView(View):
 			return self.create_guest_user(request, room_name, room_data["id"])
 		
 		userset = User.objects.filter(room=room_data["id"])
-		session_keys_users = []
 		current_session_key = request.session.session_key
+		session_keys = self.get_session_keys(userset)
 
-		for index, user in enumerate(userset):
-			user_data = UserSerializer(user).data
-			user_sessionid = UserSessionSerializer(user).data["session"]
-			session_session_key = Session.objects.filter(id=user_sessionid)[0].session_key
-			session_keys_users.append(session_session_key)
-		if current_session_key in session_keys_users:
-			for index, session in enumerate(session_keys_users):
+		if current_session_key in session_keys:
+			for index, session in enumerate(session_keys):
 				if current_session_key == session:
 					user_data = UserSerializer(userset[index]).data
 					return self.room_render(request, room_data, user_data)
@@ -66,6 +61,16 @@ class RoomView(View):
 			'room_name': room_name,
 		}
 		return redirect(f"http://127.0.0.1:8000/api/user/")
+
+	def get_session_keys(self, userset):
+		session_keys = []
+		for index, user in enumerate(userset):
+			user_data = UserSerializer(user).data
+			user_sessionid = UserSessionSerializer(user).data["session"]
+			session_session_key = Session.objects.filter(id=user_sessionid)[0].session_key
+			session_keys.append(session_session_key)
+
+		return session_keys
 			
 	def room_not_found_render(self, request, room_name):
 		return render(request, 'rooms/roomnfound.html', {
