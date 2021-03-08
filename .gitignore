@@ -5,6 +5,7 @@ home/__pycache__/*.*
 room/__pycache__/*.*
 rooms/__pycache__/*.*
 user/__pycache__/*.*
+tasks/__pycache__/*.*
 home/migrations/__pycache__/*.*
 room/migrations/__pycache__/*.*
 room/migrations/*.*
@@ -14,6 +15,8 @@ chat/__pycache__/*.*
 chat/migrations/*.*
 chat/migrations/__pycache__/*.*
 user/migrations/*.*
+tasks/migrations/*.*
+tasks/migrations/__pycache__/*.*
 SweetTube/__pycache__/*.*
 .idea
 GIT README.txt

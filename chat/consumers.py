@@ -13,9 +13,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self, sessions={}):
 		self.room_name = self.scope['url_route']['kwargs']['room_name']
 		self.room_id = await self.get_room_id()
-		self.room_group_name = f'chat_{self.room_name}'
 		self.session_key = self.scope["cookies"]["sessionid"]
 		self.user_nickname = await self.get_user_nickname()
+		self.room_group_name = f'chat_{self.room_name}'
 
 		await self.channel_layer.group_add(
 			self.room_group_name,

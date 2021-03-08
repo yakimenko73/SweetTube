@@ -12,6 +12,7 @@ DEBUG = True
 
 # Channels
 ASGI_APPLICATION = 'SweetTube.asgi.application'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -29,18 +30,19 @@ ALLOWED_HOSTS = ['25.37.17.97',
 # Application definition
 INSTALLED_APPS = [
 	'channels',
+	'rest_framework',
+	'home.apps.HomeConfig',
+	'room.apps.RoomConfig',
+	'rooms.apps.RoomsConfig',
+	'user.apps.UserConfig',
+	'chat.apps.ChatConfig',
+	'tasks.apps.TasksConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	'home.apps.HomeConfig',
-	'room.apps.RoomConfig',
-	'rooms.apps.RoomsConfig',
-	'user.apps.UserConfig',
-	'rest_framework',
-	'chat',
 ]
 
 MIDDLEWARE = [
