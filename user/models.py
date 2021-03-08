@@ -6,7 +6,7 @@ from room.models import Room
 
 
 def get_default_userdata():
-	with open("user/userdata.json", "r") as f:
+	with open("user/default_userdata.json", "r") as f:
 		data = json.load(f)
 	return data
 	
