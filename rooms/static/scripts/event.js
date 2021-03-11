@@ -30,6 +30,8 @@ document.querySelector('#btnSettings').onclick = function() {
     change_class("settings_tab", "settings_visible");
 }
 
+document.querySelector('')
+
 function change_class(id, style_class) {
     let element_tab = document.getElementById(id);
     element_tab.classList.add(style_class);
