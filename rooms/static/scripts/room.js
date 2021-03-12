@@ -13,6 +13,45 @@ if (localStorage.getItem(roomName) === '1') {
 	document.body.innerHTML = request.responseText;
 }
 else {
+	var player;
+	function onYouTubeIframeAPIReady() {
+		const player = new YT.Player('player', {
+		  height: '360',
+		  width: '640',
+		  videoId: 'j4yhpDOU-O4',
+		  playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
+		  events: {
+			'onReady': onPlayerReady,
+			'onStateChange': onPlayerStateChange
+		  }
+		});
+	  };
+
+	function onPlayerReady(event) {
+		event.target.playVideo();
+		event.target.mute();
+	};
+
+	function onPlayerStateChange(event) {
+		switch (event.data) {
+			case 1:
+					console.log('started ' + event.target.getCurrentTime());
+				break;
+			case 2:
+					console.log('paused');
+				break;
+			case 0:
+				console.log('ended');
+				break;
+			case 3:
+				console.log("buffering " + event.target.getCurrentTime());
+		};
+	};
+
+	function cleanTime(){
+		return Math.round(player.getCurrentTime())
+	};
+
 	const socket = new WebSocket(
 		'ws://' +
 		window.location.host +

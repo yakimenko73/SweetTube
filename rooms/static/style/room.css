@@ -859,12 +859,12 @@ main>aside {
 
 .player {
 	width: 100%;
+	position: relative;
 	/*! margin-bottom: 1vh; */
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	position: relative
 }
 
 .hide_cursor {

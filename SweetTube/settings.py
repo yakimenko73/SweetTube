@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 	'user.apps.UserConfig',
 	'chat.apps.ChatConfig',
 	'tasks.apps.TasksConfig',
+	'youtubeAPI.apps.YoutubeapiConfig',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
