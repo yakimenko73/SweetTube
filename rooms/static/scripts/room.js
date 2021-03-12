@@ -28,7 +28,7 @@ else {
 		else if (data.type === "system_message")
 			addMessageToChatArea(data.message)
 		else if (data.type === "update_user_list")
-			updateUser(data.userId, data.userNickname, data.userColor, data.isAdd)
+		updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd)
 		else
 			addMessageToChatArea(data.message, data.color, data.author)
 	};
@@ -40,6 +40,8 @@ else {
 	socket.onclose = function(e) {
 		localStorage.setItem(roomName, 0);
 	};
+
+	setEventForCheckboxes();
 
 	window.onbeforeunload = function() {
 		socket.close();
@@ -88,6 +90,30 @@ else {
 			deleteClass("color_picker_popup", "color_picker_popup_visible");
 		else
 			changeClass("color_picker_popup", "color_picker_popup_visible");
+	};
+
+	function setEventForCheckboxes() {
+		// g - guest, m - moderator, o - owner
+		let listRoles = [ "g", "m", "o" ];
+		let list_types = [ "add", "remove", "move", "play", "seek", "skip", "chat", "kick" ];
+	
+		for(let role = 0; role < listRoles.length; role++) {
+			for(let type = 0; type < list_types.length; type++) {
+				let id = `${listRoles[role]}_${list_types[type]}`;
+	
+				document.querySelector(`#${id}`).onclick = function() {
+					changeCheckbox(id);
+				};
+			};
+		};
+	
+		document.querySelector("#cb_p").onclick = function() {
+			changeCheckbox("cb_p");
+		};
+	
+		document.querySelector("#cb_rn").onclick = function() {
+			changeCheckbox("cb_rn");
+		};
 	};
 
 	function addMessageToChatArea(message, colorForUsernName=null, mailer=null) {
@@ -145,7 +171,7 @@ else {
 		userCounter.textContent = newCounter;
 	};
 
-	function updateUser(id, name, color, isAdd = true) {
+	function updateUserList(id, name, color, isAdd=true) {
 		if(!isAdd) {
 			document.getElementById(id).remove();
 			return;
@@ -197,18 +223,18 @@ else {
 	};
 	
 	function clickPlaylist() {
-		delete_all_class_for_panel();
+		deleteAllClassForPanel();
 		changeClass("btnPlaylist", "tab_selected");
 		changeClass("video_playlist", "tab_visible");
 	};
 	
 	function clickChat() {
-		delete_all_class_for_panel();
+		deleteAllClassForPanel();
 		changeClass("btnChat", "tab_selected");
 		changeClass("chat_tab", "tab_visible");
 	};
 	
-	function delete_all_class_for_panel() {
+	function deleteAllClassForPanel() {
 		deleteClass("btnPlaylist", "tab_selected");
 		deleteClass("video_playlist", "tab_visible");
 		deleteClass("btnChat", "tab_selected");
@@ -216,7 +242,7 @@ else {
 		deleteClass("btnSettings", "tab_selected");
 	};
 
-	function is_checked(id) {
+	function isChecked(id) {
 		let checkbox = document.getElementById(id);
 		if(checkbox.classList.contains("checked"))
 			return true;
@@ -231,7 +257,7 @@ else {
 		return false;
 	};  
 	
-	function change_checkbox(id, checked = null) {
+	function changeCheckbox(id, checked=null) {
 		if (checked != null)
 		{
 			if(checked)
@@ -241,7 +267,7 @@ else {
 			return;
 		}
 		
-		if(is_checked(id))
+		if(isChecked(id))
 			deleteClass(id, "checked");
 		else
 			changeClass(id, "checked");
