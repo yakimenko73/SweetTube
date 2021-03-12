@@ -10,12 +10,11 @@
 		<link rel="stylesheet" href="/static/style/room.css">
 		<script type="text/javascript" id="www-widgetapi-script" src="https://www.youtube.com/s/player/2e6e57d8/www-widgetapi.vflset/www-widgetapi.js" async=""></script>
 		<script src="https://www.youtube.com/iframe_api"></script>
-		<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+		<script async src="/static/scripts/room.js"></script>
 		{{ room_name|json_script:"room-name" }}
 		{{ user_session_key|json_script:"user-sessionid" }}
 		{{ user_nickname|json_script:"user-nickname" }}
 		{{ user_color|json_script:"user-color" }}
-		<script async src="/static/scripts/room.js"></script>
 	</head>
 	<body>
 		<header>
@@ -44,28 +43,40 @@
 				<div class="center">
 					<div class="player">
 						<div class="view">
-							<iframe id="player" frameborder="0" allowfullscreen="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" title="YouTube video player" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/SiLVhVZKaOw?autoplay=1&amp;controls=1&amp;disablekb=1&amp;enablejsapi=1&amp;iv_load_policy=3&amp;origin=https%3A%2F%2Fsweet-tube.ua&amp;start=0&amp;playsinline=1&amp;widgetid=1"></iframe>
-							<div class="novideo">NO VIDEO</div>
+							<div id="player"></div>
+							<div class="novideo visible">NO VIDEO</div>
 						</div>
 					</div>
 					<div class="info">
 						<div class="btnSkip">Skip Video</div>
-						<div class="videoTitle">ОБНАГЛЕВШИЙ МАЖОР НАИЛЬ KRAPOZAVR / ЧЕРНЫЙ РЕСЕЛЛЕР РАЗОБЛАЧЕНИЕ / ДРУЖОК RAU TV</div>
-						<div class="videoDescription videoDescriptionExpanded"></div>
-						<div class="readMore noselect" style="display: none;">Show less</div>
+						<div class="videoTitle"></div>
+						<div class="videoDescription"></div>
+						<div class="readMore noselect">Show more</div>
 					</div>
+					<nav class="tabs noselect" id="main_nav">
+						<div class="nohide" t="playlist" id="btnPlaylist">
+							Playlist
+							<div class="notify" val="0">0</div>
+						</div>
+						<div class="nohide tab_selected" t="chat" id="btnChat">
+							Chat
+							<div class="notify" val="0">0</div>
+						</div>
+						<div class="nohide" id="btnSettings">Settings</div>
+					</nav>
 				</div>
 			</div>
 			<aside>
 				<div class="wrapper">
 					<div class="content">
 						<div class="wrapper">
-							<div class="playlist tab">
+							<div class="playlist tab" id="video_playlist">
 								<ul id="video_list"></ul>
 								<div class="noplaylist noselect visible">No upcoming Videos</div>
 								<div class="edge"></div>
 							</div>
-							<div class="chat tab_visible tab">
+
+							<div class="chat tab_visible tab", id="chat_tab">
 								<div class="log" id="chat_log">
 								</div>
 								<div class="input">
@@ -83,25 +94,23 @@
 									</div>
 								</div>
 							</div>
+
 						</div>
 					</div>
 					<div class="users">
-						<div class="userCount noselect"><span id="user-counter"> 0 </span> Users</div>
-						<ul id="user_list">
-							<li class="user" id="9LwI6S_EJn" style="border-right: 5px solid rgb(75, 11, 11);">
-								<div class="name" style="font-weight: bold;">Киево-могилянская академия</div>
-								<img src="/static/images/loading.gif">
-							</li>
+						<div class="userCount noselect"><span id = "user-counter"> 0 </span> Users</div>
+						<ul class="user_list" id="user_list">
 						</ul>
 					</div>
 				</div>
 			</aside>
 		</main>
 		<div class="overlay">
-			<div class="overlay_background"></div>
-			<div class="settings">
+			<div class="overlay_background" style="display: block;" id="overlay"></div>
+
+			<div class="settings" style="display: block;" id="settings_tab">
 				<div class="title">Settings</div>
-				<div class="btnClose"><img src="/static/images/crossb.png"></div>
+				<div class="btnClose" id="btnCloseOverlay"><img src="/static/images/crossb.png"></div>
 				<div class="settings_content">
 					<div class="left">
 						<section>
@@ -113,8 +122,8 @@
 								</li>
 								<li>
 									<div class="desc">Your Name</div>
-									<div class="color_picker" style="background-color: rgb(213, 209, 3);">
-										<div class="color_picker_popup" style="display: none;">
+									<div id = "color_picker" class="color_picker" style="background-color: rgb(213, 209, 3);">
+										<div id = "color_picker_popup" class="color_picker_popup" style="display: flex;">
 											<div class="wrapper">
 												<div class="canvas_wrapper">
 													<canvas class="color_canvas"></canvas>
@@ -158,122 +167,103 @@
 									<tr pid="add">
 										<th>Add</th>
 										<td>
-											<div class="checkbox checked" id="0"></div>
+											<div class="checkbox checked" id="g_add"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_add"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_add"></div>
 										</td>
 									</tr>
-									<tr pid="rem">
+									<tr pid="remove">
 										<th>Remove</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_remove"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_remove"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_remove"></div>
 										</td>
 									</tr>
 									<tr pid="move">
 										<th>Move</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_move"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_move"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_move"></div>
 										</td>
 									</tr>
 									<tr pid="play">
 										<th>Play/Pause</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_play"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_play"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_play"></div>
 										</td>
 									</tr>
 									<tr pid="seek">
 										<th>Seek</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_seek"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_seek"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_seek"></div>
 										</td>
 									</tr>
 									<tr pid="skip">
 										<th>Skip</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_skip"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_skip"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_skip"></div>
 										</td>
 									</tr>
 									<tr pid="chat">
 										<th>Use Chat</th>
 										<td>
-											<div class="checkbox checked" id="0"></div>
+											<div class="checkbox checked" id="g_chat"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="1"></div>
+											<div class="checkbox checked" id="m_chat"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_chat"></div>
 										</td>
 									</tr>
 									<tr pid="kick">
 										<th>Kick</th>
 										<td>
-											<div class="checkbox" id="0"></div>
+											<div class="checkbox" id="g_kick"></div>
 										</td>
 										<td>
-											<div class="checkbox" id="1"></div>
+											<div class="checkbox" id="m_kick"></div>
 										</td>
 										<td>
-											<div class="checkbox checked" id="2"></div>
+											<div class="checkbox checked" id="o_kick"></div>
 										</td>
 									</tr>
 								</tbody>
 							</table>
 						</section>
 					</div>
-				</div>
-			</div>
-			<div class="login_form">
-				<div class="title">Login</div>
-				<div class="label">User</div>
-				<input type="text" name="user">
-				<div class="label">
-					Password
-					<a href="resetpwd" target="_blank">
-						<div class="label_info">Forgot?</div>
-					</a>
-				</div>
-				<input type="passwort" name="pwd">
-				<div class="btn_login">Login</div>
-				<div class="bottom_info">
-					Not a member?
-					<a href="/signup" target="_blank">
-						<div class="label_info">Sign up now</div>
-					</a>
 				</div>
 			</div>
 		</div>

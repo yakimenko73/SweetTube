@@ -10,13 +10,18 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 from .serializers import UserSerializer, SessionSerializer
 
 from .models import User, Session
 from room.models import Room
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+	
+    def enforce_csrf(self, request):
+        return
 
 
 class CreateUserAPIView(APIView):
@@ -60,6 +65,7 @@ class CreateUserAPIView(APIView):
 
 
 class UserAPIView(RetrieveUpdateDestroyAPIView):
+	authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, )
 	def get_object(self, pk):
 		return get_object_or_404(User, pk=pk)
 
@@ -77,6 +83,7 @@ class UserAPIView(RetrieveUpdateDestroyAPIView):
 		return Response({'Bad request': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 	def delete(self, request, pk, format=None):
+		print(pk, "DELETE")
 		user = self.get_object(pk)
 		user.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)

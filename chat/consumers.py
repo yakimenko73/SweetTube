@@ -16,6 +16,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.session_key = self.scope["cookies"]["sessionid"]
 		self.user_nickname = await self.get_user_nickname()
 		self.room_group_name = f'chat_{self.room_name}'
+		self.color_user_in_list = await self.define_user_color_in_list()
+		self.user_data = [self.session_key, 
+			self.user_nickname, 
+			self.color_user_in_list, 
+		]
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -25,9 +30,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 		try:
-			sessions[self.room_name].append(self.session_key)
+			sessions[self.room_name].append(self.user_data)
 		except KeyError as ex:
-			sessions[self.room_name] = [self.session_key, ]
+			sessions[self.room_name] = [self.user_data, ]
 
 		number_users = self.number_users_in_room(sessions)
 
@@ -49,6 +54,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 
+		for session in sessions[self.room_name]:
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': 'update_user_list',
+					'userId': session[0],
+					'userNickname': session[1],
+					'userColor': session[2],
+					'isAdd': 1
+				}
+			)
+
 		# upload saved messages to WebSocket
 		if self.receive.__defaults__[0]:
 			for message in self.receive.__defaults__[0]:
@@ -61,7 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		sessions = self.connect.__defaults__[0][self.room_name]
-		sessions.remove(self.session_key)
+		sessions.remove(self.user_data)
 
 		# sending a new users counter state
 		await self.channel_layer.group_send(
@@ -78,6 +95,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			{
 				'type': 'system_message',
 				'message': f"{self.user_nickname} left the room"
+			}
+		)
+
+		await self.channel_layer.group_send(
+			self.room_group_name,
+			{
+				'type': 'update_user_list',
+				'userNickname': self.user_nickname,
+				'userId': self.session_key,
+				'userColor': self.color_user_in_list,
+				'isAdd': 0
 			}
 		)
 		
@@ -139,6 +167,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'message': message
 		}))
 
+	async def update_user_list(self, event):
+		''' Receive a message about updating the list of users from room group '''
+		user_nickname = event['userNickname']
+		user_id = event['userId']
+		user_color = event['userColor']
+		is_add = event["isAdd"]
+
+		await self.send(text_data=json.dumps({
+			'type': "update_user_list",
+			'userNickname': user_nickname,
+			'userId': user_id,
+			'userColor': user_color,
+			'isAdd': is_add
+		}))
+
 	def number_users_in_room(self, sessions):
 		number_users = len(sessions[self.room_name])
 		return number_users
@@ -152,3 +195,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		session_id = Session.objects.filter(session_key=self.session_key)[0].id
 		user_nickname = User.objects.filter(session=session_id, room=self.room_id)[0].user_nickname
 		return user_nickname
+
+	@database_sync_to_async
+	def define_user_color_in_list(self):
+		session_id = Session.objects.filter(session_key=self.session_key)[0].id
+		user_status = User.objects.filter(session=session_id, room=self.room_id)[0].user_status
+		
+		if user_status == "HO":
+			user_color = "#4b0b0b"
+		elif user_status == "MO":
+			user_color = "#503704"
+		else:
+			user_color = "#383838"
+
+		return user_color
