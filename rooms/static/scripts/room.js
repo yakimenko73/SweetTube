@@ -15,16 +15,28 @@ if (localStorage.getItem(roomName) === '1') {
 else {
 	var player;
 	function onYouTubeIframeAPIReady() {
-		const player = new YT.Player('player', {
-		  height: '360',
-		  width: '640',
-		  videoId: 'j4yhpDOU-O4',
-		  playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
-		  events: {
-			'onReady': onPlayerReady,
-			'onStateChange': onPlayerStateChange
-		  }
-		});
+		// const player = new YT.Player('player', {
+		//   height: '360',
+		//   width: '640',
+		//   videoId: 'https://www.youtube.com/embed/MvtuZ_MOBJ4',
+		//   playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
+		//   events: {
+		// 	'onReady': onPlayerReady,
+		// 	'onStateChange': onPlayerStateChange
+		//   }
+		// });
+		var request = new XMLHttpRequest();
+		request.open('POST', 
+			window.location.protocol + 
+			"//" + 
+			window.location.hostname + 
+			":" + 
+			window.location.port + 
+			"/api/youtube/playlist/", 
+			true
+		);
+		body = roomName;
+		request.send(body);
 	  };
 
 	function onPlayerReady(event) {
@@ -33,23 +45,25 @@ else {
 	};
 
 	function onPlayerStateChange(event) {
+		clearTime = Math.round(event.target.getCurrentTime());
+		videoDuration = event.target.getDuration();
 		switch (event.data) {
 			case 1:
-					console.log('started ' + event.target.getCurrentTime());
+				if (clearTime == 0)
+					console.log('started ' + clearTime);
+				else
+					console.log('playing ' + clearTime);
 				break;
 			case 2:
+				if (videoDuration - clearTime != 0)
 					console.log('paused');
 				break;
 			case 0:
 				console.log('ended');
 				break;
 			case 3:
-				console.log("buffering " + event.target.getCurrentTime());
+				console.log("buffering " + Math.round(event.target.getCurrentTime()));
 		};
-	};
-
-	function cleanTime(){
-		return Math.round(player.getCurrentTime())
 	};
 
 	const socket = new WebSocket(
@@ -101,6 +115,25 @@ else {
 				'color': userColor,
 			}));
 			messageInputDom.value = '';
+		};
+	};
+
+	document.querySelector('#search_input').onkeyup = function(e) {
+		if (e.keyCode === 13) { // enter, return
+			const urlInputDom = document.querySelector('#search_input');
+			const url = urlInputDom.value;
+			var request = new XMLHttpRequest();
+			request.open('GET', 
+				'https://noembed.com/embed?url=' + url,
+				false
+			);
+			request.send();
+			response = JSON.parse(request.response)
+			title = response.title
+			author = response.author_name
+			preview = response.thumbnail_url
+			alert(request.response);
+			urlInputDom.value = '';
 		};
 	};
 	

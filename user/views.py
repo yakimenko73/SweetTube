@@ -19,9 +19,8 @@ from room.models import Room
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
-	
-    def enforce_csrf(self, request):
-        return
+	def enforce_csrf(self, request):
+		return
 
 
 class CreateUserAPIView(APIView):

@@ -8,18 +8,21 @@ rooms/__pycache__/*.*
 user/__pycache__/*.*
 chat/__pycache__/*.*
 tasks/__pycache__/*.*
+youtubeAPI/__pycache__/*.*
 home/migrations/*.*
 room/migrations/*.*
 rooms/migrations/*.*
 user/migrations/*.*
 chat/migrations/*.*
 tasks/migrations/*.*
+youtubeAPI/migrations/*.*
 home/migrations/__pycache__/*.*
 room/migrations/__pycache__/*.*
 rooms/migrations/__pycache__/*.*
 user/migrations/__pycache__/*.*
 chat/migrations/__pycache__/*.*
 tasks/migrations/__pycache__/*.*
+youtubeAPI/migrations/__pycache__/*.*
 .idea
 GIT README.txt
 db.*

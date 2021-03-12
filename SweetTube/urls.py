@@ -7,4 +7,5 @@ urlpatterns = [
 	path('', include('room.urls')),
 	path('', include('rooms.urls')),
 	path('', include('user.urls')),
+	path('', include('youtubeAPI.urls')),
 ]

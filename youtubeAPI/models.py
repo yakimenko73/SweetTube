@@ -9,4 +9,7 @@ class Playlist(models.Model):
 
 
 class Video(models.Model):
-	pass
+	video = models.CharField(max_length=50)
+
+	playlist = models.ForeignKey(Playlist, verbose_name=("playlist_id"), on_delete=models.CASCADE)
+	user = models.ForeignKey(User, verbose_name=("user_id"), on_delete=models.CASCADE)
