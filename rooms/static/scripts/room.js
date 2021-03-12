@@ -41,7 +41,7 @@ else {
 
 	window.onbeforeunload = function() {
 		socket.close();
-		return '';
+		// return '';
 	};
 
 	document.querySelector('#chat_input').onkeyup = function(e) {
