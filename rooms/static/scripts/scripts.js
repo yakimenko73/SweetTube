@@ -3,14 +3,15 @@ document.querySelector("body").onload = function() {
     let id = `${Math.random()}`;
     let color = `rgb(${Math.random() * 200}, ${Math.random() * 150}, ${Math.random() * 300}`;
     
-    add_all_events();
-    update_user(name, id, color);
+    addAllEvents();
+    updateUser(name, id, color);
+    loadButtons();
     
 
 };
 
-function add_all_events() {
-    set_event_for_checkbox();
+function addAllEvents() {
+    setEventForCheckbox();
 
     document.querySelector('#chat_input').onkeyup = function(e) {
         if (e.keyCode === 13) { // enter, return
@@ -18,43 +19,57 @@ function add_all_events() {
             const message = messageInputDom.value;
             messageInputDom.value = '';
     
-            add_message(message);
+            addMessage(message);
         }
     };
     // increase in users
     
-    document.querySelector('#btnplaylist').onclick = function() {
-        click_playlist();
-    };
-    
-    document.querySelector('#btnchat').onclick = function() {
-        click_chat();
-    };
-    
-    document.querySelector('#btnSettings').onclick = function() {
-        click_settings();
-    };
+    window.addEventListener("resize", event => {
+
+        if(window.matchMedia("(max-width:992px)").matches)
+            addButtons("center");
+        else
+        {
+            addButtons("header");
+        }    
+            
+    })
     
     document.querySelector('#btnCloseOverlay').onclick = function() {
-        click_close_settings();
+        clickCloseSettings();
     };
     
     document.querySelector('#overlay').onclick = function() {
-        click_close_settings();
+        clickCloseSettings();
     };
 
-    document.querySelector('#pick_u_color').onclick = function() {
-        if(color_picker_is_visible())
-            delete_class("color_picker_popup", "color_picker_popup_visible");
+    document.querySelector('#color_picker').onclick = function() {
+        if(colorPickerIsVisible())
+            deleteClass("color_picker_popup", "color_picker_popup_visible");
         else
-            change_class("color_picker_popup", "color_picker_popup_visible");
+            changeClass("color_picker_popup", "color_picker_popup_visible");
     };
-
-    
 }
 
+function setEventClickPlaylist() {
+    document.querySelector('#btnplaylist').onclick = function() {
+        clickPlaylist();
+    };
+}
 
-function set_event_for_checkbox() {
+function setEventClickChat() {
+    document.querySelector('#btnchat').onclick = function() {
+        clickChat();
+    };
+}
+
+function setEventClickSettings() {
+    document.querySelector('#btnSettings').onclick = function() {
+        clickSettings();
+    };
+}
+
+function setEventForCheckbox() {
     // g - guest, m - moderator, o - owner
     let list_roles = [ "g", "m", "o" ];
     let list_type_checkbox = [ "add", "remove", "move", "play", "seek", "skip", "chat", "kick" ];
@@ -64,73 +79,73 @@ function set_event_for_checkbox() {
             let id_checkbox = `${list_roles[role]}_${list_type_checkbox[type]}`;
 
             document.querySelector(`#${id_checkbox}`).onclick = function() {
-                change_checkbox(id_checkbox);
+                changeCheckbox(id_checkbox);
             };
         }
     }
 
     document.querySelector("#cb_p").onclick = function() {
-        change_checkbox("cb_p");
+        changeCheckbox("cb_p");
     };
 
     document.querySelector("#cb_rn").onclick = function() {
-        change_checkbox("cb_rn");
+        changeCheckbox("cb_rn");
     };
 
 }
 
-function change_class(id, style_class) {
+function changeClass(id, style_class) {
     let element_tab = document.getElementById(id);
     element_tab.classList.add(style_class);
-};
+}
 
-function delete_class(id, style_class) {
+function deleteClass(id, style_class) {
     let element_tab = document.getElementById(id);
     if (element_tab.classList.contains(style_class))
         element_tab.classList.remove(style_class);
 }
 
-function click_close_settings() {
-    delete_class("overlay", "overlay_visible");
-    delete_class("settings_tab", "settings_visible");
+function clickCloseSettings() {
+    deleteClass("overlay", "overlay_visible");
+    deleteClass("settings_tab", "settings_visible");
 }
 
-function click_settings() {
-    change_class("overlay", "overlay_visible");
-    change_class("settings_tab", "settings_visible");
+function clickSettings() {
+    changeClass("overlay", "overlay_visible");
+    changeClass("settings_tab", "settings_visible");
 }
 
-function click_playlist() {
+function clickPlaylist() {
     delete_all_class_for_panel();
-    change_class("btnplaylist", "tab_selected");
-    change_class("video_playlist", "tab_visible");
+    changeClass("btnplaylist", "tab_selected");
+    changeClass("video_playlist", "tab_visible");
 }
 
-function click_chat() {
+function clickChat() {
     delete_all_class_for_panel();
-    change_class("btnchat", "tab_selected");
-    change_class("chat_tab", "tab_visible");
+    changeClass("btnchat", "tab_selected");
+    changeClass("chat_tab", "tab_visible");
 }
 
 function delete_all_class_for_panel() {
-    delete_class("btnplaylist", "tab_selected");
-    delete_class("video_playlist", "tab_visible");
-    delete_class("btnchat", "tab_selected");
-    delete_class("chat_tab", "tab_visible");
-    delete_class("btnSettings", "tab_selected");
+    deleteClass("btnplaylist", "tab_selected");
+    deleteClass("video_playlist", "tab_visible");
+    deleteClass("btnchat", "tab_selected");
+    deleteClass("chat_tab", "tab_visible");
+    deleteClass("btnSettings", "tab_selected");
 }
 
 // add user
 
-function set_color_for_user_list(id, color) {
+function setColorForUserList(id, color) {
     let panel_user = document.getElementById(id);
     panel_user.style = `border-right: 5px solid ${color}`;
 }
 
-function update_user(name, id, color, isAdd = true) {
+function updateUser(name, id, color, isAdd = true) {
     if(!isAdd) {
         document.getElementById(id).remove();
-        update_counter_user(isAdd);
+        updateCounterUser(isAdd);
         return;
     }
     
@@ -142,19 +157,19 @@ function update_user(name, id, color, isAdd = true) {
     user_list.appendChild(panel_user);
 
     panel_user.id = id;
-    set_color_for_user_list(panel_user.id, color);
-    change_class(panel_user.id, "user");
+    setColorForUserList(panel_user.id, color);
+    changeClass(panel_user.id, "user");
 
     user_name.id = `${id}_name`;
     user_name.style = "font-weight: bold;";
     user_name.textContent = name;
-    change_class(user_name.id, "name");
+    changeClass(user_name.id, "name");
 
-    update_counter_user(isAdd);
+    updateCounterUser(isAdd);
 }
 
 // counter of users
-function update_counter_user(isAdd = true, count = 1) {
+function updateCounterUser(isAdd = true, count = 1) {
     if(!isAdd)
         count *= -1
 
@@ -170,7 +185,7 @@ function update_counter_user(isAdd = true, count = 1) {
 // add message in chat 
 
 // color and mailer = null -> system message
-function add_message(message, color_for_username = null, mailer = null) {
+function addMessage(message, color_for_username = null, mailer = null) {
     let type_message = 0;
     
     let styles_for_message = [
@@ -198,7 +213,7 @@ function add_message(message, color_for_username = null, mailer = null) {
     for(let text_message = 0; text_message < text_for_message[type_message].length; text_message++) {
         let style = styles_for_message[type_message][text_message];
         let text = text_for_message[type_message][text_message];
-        let span = make_span(style, text);
+        let span = makeSpan(style, text);
         new_message.appendChild(span);
     }
 
@@ -206,21 +221,21 @@ function add_message(message, color_for_username = null, mailer = null) {
     chat_log.scrollTop = chat_log.scrollHeight;
 }
 
-function make_span(style, text) {
+function makeSpan(style, text) {
     let span = document.createElement("span");
     span.style = style;
     span.textContent = text;
     return span;
 }
 
-function is_checked(id_checkbox) {
+function isChecked(id_checkbox) {
     let checkbox = document.getElementById(id_checkbox);
     if(checkbox.classList.contains("checked"))
         return true;
     return false;
 }
 
-function color_picker_is_visible() {
+function colorPickerIsVisible() {
     let checkbox = document.getElementById("color_picker_popup");
 
     if(checkbox.classList.contains("color_picker_popup_visible"))
@@ -228,19 +243,52 @@ function color_picker_is_visible() {
     return false;
 }   
 
-function change_checkbox(id_checkbox, checked = null) {
+function changeCheckbox(id_checkbox, checked = null) {
     if (checked != null)
     {
         if(checked)
-            change_class(id_checkbox, "checked");
+            changeClass(id_checkbox, "checked");
         else
-            delete_class(id_checkbox, "checked");
+            deleteClass(id_checkbox, "checked");
         
         return;
     }
     
-    if(is_checked(id_checkbox))
-        delete_class(id_checkbox, "checked");
+    if(isChecked(id_checkbox))
+        deleteClass(id_checkbox, "checked");
     else
-        change_class(id_checkbox, "checked");
+        changeClass(id_checkbox, "checked");
+}
+
+function addButtons(id_parent_element) {
+    if(buttonsExists(id_parent_element))
+        return;
+    let nav = 
+    `<nav class="tabs noselect" id="main_nav">
+        <div class="nohide" t="playlist" id="btnplaylist">
+            Playlist
+            <div class="notify" val="0">0</div>
+        </div>
+        <div class="nohide tab_selected" t="chat" id="btnchat">
+            Chat
+            <div class="notify" val="0">0</div>
+        </div>
+        <div class="nohide" id="btnSettings">Settings</div>
+    </nav>`;
+    document.getElementById("main_nav").remove();
+    document.getElementById(id_parent_element).insertAdjacentHTML("beforeend", nav);
+}
+
+function buttonsExists(id_parent_element) {
+    if (document.getElementById("main_nav").parentElement.id == id_parent_element)
+        return true;
+    return false; 
+}
+
+function loadButtons() {
+    let width = document.documentElement.clientWidth;
+    if (width > 928)
+        addButtons("header");
+    else
+        addButtons("center");
 }

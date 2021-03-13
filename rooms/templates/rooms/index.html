@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <html lang="en">
 	<head>
 		<title>Room #323 - SweetTube</title>
@@ -15,7 +16,7 @@
 		
 	</head>
 	<body>
-		<header>
+		<header id="header">
 			<div class="header_wrapper">
 				<div class="logo noselect">
 					<a style="text-decoration: none;" href="/">SweetTube</a>
@@ -23,22 +24,22 @@
 				<div class="roomName noselect">Room #{{ room_id }}</div>
 				<div class="search_input_wrapper"><input class="searchInput" type="text" placeholder="Enter YouTube URL here"></div>
 			</div>
-			<div class="user_popup">
-				<div class="user_popup_btn"><img src="/static/images/user.png"></div>
-				<div class="user_popup_menu">
-					<div class="user_popup_entry" id="btn_login">Login</div>
-					<a href="/signup" target="_blank">
-						<div class="user_popup_entry">Sign Up</div>
-					</a>
-					<div class="user_popup_spacer"></div>
-					<div class="user_popup_entry" id="btn_settings">Settings</div>
-				</div>
-			</div>
 			<div class="search_result_wrapper"></div>
+			<nav class="tabs noselect" id="main_nav">
+				<div class="nohide" t="playlist" id="btnplaylist">
+					Playlist
+					<div class="notify" val="0">0</div>
+				</div>
+				<div class="nohide tab_selected" t="chat" id="btnchat">
+					Chat
+					<div class="notify" val="0">0</div>
+				</div>
+				<div class="nohide" id="btnSettings">Settings</div>
+			</nav>
 		</header>
 		<main>
 			<div class="left_wrapper">
-				<div class="center">
+				<div class="center" id="center">
 					<div class="player">
 						<div class="view">
 							<div id="player"></div>
@@ -51,17 +52,6 @@
 						<div class="videoDescription"></div>
 						<div class="readMore noselect">Show more</div>
 					</div>
-					<nav class="tabs noselect" id="main_nav">
-						<div class="nohide" t="playlist" id="btnplaylist">
-							Playlist
-							<div class="notify" val="0">0</div>
-						</div>
-						<div class="nohide tab_selected" t="chat" id="btnchat">
-							Chat
-							<div class="notify" val="0">0</div>
-						</div>
-						<div class="nohide" id="btnSettings">Settings</div>
-					</nav>
 				</div>
 			</div>
 			<aside>
