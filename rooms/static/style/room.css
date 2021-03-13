@@ -193,7 +193,6 @@ header .logo {
 	height: 100%;
 	font-size: 1.3em;
 	line-height: 50px;
-	float: left
 }
 
 header .logo span {
@@ -214,7 +213,6 @@ header .roomName {
 	margin: 2px 0 0 50px;
 	font-size: .9em;
 	overflow: hidden;
-	float: left;
 	text-overflow: ellipsis;
 	white-space: nowrap
 }
@@ -481,7 +479,6 @@ header input:focus {
 	display: inline-block;
 	width: calc(100% - 450px);
 	min-height: 100%;
-	float: left;
 }
 
 .center>.info {
@@ -565,7 +562,7 @@ header input:focus {
 	box-sizing: border-box;
 	content: "";
 	box-sizing: border-box;
-	background-color: #034f00;
+	background-color: #078802;
 	transition: opacity .2s ease-in-out
 }
 
@@ -986,7 +983,6 @@ main>aside {
 
 .btnFull {
 	display: inline-block;
-	float: right;
 	height: 100%;
 	cursor: pointer;
 	padding: .31em;
@@ -1012,7 +1008,6 @@ main>aside {
 	visibility: hidden;
 	position: relative;
 	display: inline-block;
-	float: right;
 	margin: 1px 15px 0 15px;
 	color: #5c5c5c;
 	font-size: .85em;

@@ -17,7 +17,7 @@
 		{{ user_color|json_script:"user-color" }}
 	</head>
 	<body>
-		<header>
+		<header id="header">
 			<div class="header_wrapper">
 				<div class="logo noselect">
 					<a style="text-decoration: none;" href="/">SweetTube</a>
@@ -37,10 +37,21 @@
 				</div>
 			</div>
 			<div class="search_result_wrapper"></div>
+			<nav class="tabs noselect" id="main_nav">
+				<div class="nohide" t="playlist" id="btnplaylist">
+					Playlist
+					<div class="notify" val="0">0</div>
+				</div>
+				<div class="nohide tab_selected" t="chat" id="btnchat">
+					Chat
+					<div class="notify" val="0">0</div>
+				</div>
+				<div class="nohide" id="btnSettings">Settings</div>
+			</nav>
 		</header>
 		<main>
 			<div class="left_wrapper">
-				<div class="center">
+				<div class="center" id="center">
 					<div class="player">
 						<div class="view">
 							<div id="player"></div>
@@ -53,17 +64,6 @@
 						<div class="videoDescription"></div>
 						<div class="readMore noselect">Show more</div>
 					</div>
-					<nav class="tabs noselect" id="main_nav">
-						<div class="nohide" t="playlist" id="btnPlaylist">
-							Playlist
-							<div class="notify" val="0">0</div>
-						</div>
-						<div class="nohide tab_selected" t="chat" id="btnChat">
-							Chat
-							<div class="notify" val="0">0</div>
-						</div>
-						<div class="nohide" id="btnSettings">Settings</div>
-					</nav>
 				</div>
 			</div>
 			<aside>
@@ -135,7 +135,7 @@
 											</div>
 										</div>
 									</div>
-									<input type="text" id="input_userName">
+									<input type="text" id="input_userName" value="{{ user_nickname }}">
 								</li>
 							</ul>
 						</section>
@@ -148,7 +148,7 @@
 								</li>
 								<li>
 									<div class="desc">Room Name</div>
-									<input type="text" id="input_roomName">
+									<input type="text" id="input_roomName" value="Room #{{ room_id }}">
 								</li>
 							</ul>
 						</section>

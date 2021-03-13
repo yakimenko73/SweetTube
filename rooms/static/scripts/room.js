@@ -13,12 +13,14 @@ if (localStorage.getItem(roomName) === '1') {
 	document.body.innerHTML = request.responseText;
 }
 else {
+	// loadButtons();
+	// setEventForCheckboxes();
 	var player;
 	function onYouTubeIframeAPIReady() {
 		// const player = new YT.Player('player', {
 		//   height: '360',
 		//   width: '640',
-		//   videoId: 'https://www.youtube.com/embed/MvtuZ_MOBJ4',
+		//   videoId: 'QQWypVT15Tg',
 		//   playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
 		//   events: {
 		// 	'onReady': onPlayerReady,
@@ -94,8 +96,6 @@ else {
 		localStorage.setItem(roomName, 0);
 	};
 
-	setEventForCheckboxes();
-
 	window.onbeforeunload = function() {
 		socket.close();
 	};
@@ -119,22 +119,32 @@ else {
 	};
 
 	document.querySelector('#search_input').onkeyup = function(e) {
-		if (e.keyCode === 13) { // enter, return
+		if (e.keyCode >= 48 & e.keyCode <= 90) { // characters and numbers
 			const urlInputDom = document.querySelector('#search_input');
 			const url = urlInputDom.value;
 			var request = new XMLHttpRequest();
-			request.open('GET', 
-				'https://noembed.com/embed?url=' + url,
-				false
-			);
-			request.send();
-			response = JSON.parse(request.response)
-			title = response.title
-			author = response.author_name
-			preview = response.thumbnail_url
-			alert(request.response);
-			urlInputDom.value = '';
+				request.open('GET', 
+					'https://noembed.com/embed?url=' + url,
+					false
+				);
+				request.send();
+				response = JSON.parse(request.response)
+				if (!response.error)
+					videoId = parseIdFromURL(url);
+					videoTitle = response.title;
+					videoAuthor = response.author_name;
+					videoPreviewImgURL = response.thumbnail_url;
 		};
+	};
+
+	function parseIdFromURL(url) {
+		var id = url.split('v=')[1];
+		if (!id)
+			var id = url.split('be/')[1];
+		var ampersandPosition = id.indexOf('&');
+		if(ampersandPosition != -1)
+			id = id.substring(0, ampersandPosition);
+		return id;
 	};
 	
 	document.querySelector('#btnPlaylist').onclick = function() {
@@ -343,5 +353,38 @@ else {
 			deleteClass(id, "checked");
 		else
 			changeClass(id, "checked");
+	};
+
+	function addButtons(id_parent_element) {
+		if(buttonsExists(id_parent_element))
+			return;
+		let nav = 
+		`<nav class="tabs noselect" id="main_nav">
+			<div class="nohide" t="playlist" id="btnplaylist">
+				Playlist
+				<div class="notify" val="0">0</div>
+			</div>
+			<div class="nohide tab_selected" t="chat" id="btnchat">
+				Chat
+				<div class="notify" val="0">0</div>
+			</div>
+			<div class="nohide" id="btnSettings">Settings</div>
+		</nav>`;
+		document.getElementById("main_nav").remove();
+		document.getElementById(id_parent_element).insertAdjacentHTML("beforeend", nav);
+	};
+	
+	function buttonsExists(id_parent_element) {
+		if (document.getElementById("main_nav").parentElement.id == id_parent_element)
+			return true;
+		return false; 
+	};
+	
+	function loadButtons() {
+		let width = document.documentElement.clientWidth;
+		if (width > 928)
+			addButtons("header");
+		else
+			addButtons("center");
 	};
 };
