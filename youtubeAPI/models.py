@@ -9,7 +9,9 @@ class Playlist(models.Model):
 
 
 class Video(models.Model):
-	video = models.CharField(max_length=50)
+	video_url = models.CharField(max_length=100)
+	preview_url = models.CharField(max_length=100)
+	title = models.CharField(max_length=50)
 
 	playlist = models.ForeignKey(Playlist, verbose_name=("playlist_id"), on_delete=models.CASCADE)
 	user = models.ForeignKey(User, verbose_name=("user_id"), on_delete=models.CASCADE)

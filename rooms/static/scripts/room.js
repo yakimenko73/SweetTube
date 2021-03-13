@@ -13,20 +13,10 @@ if (localStorage.getItem(roomName) === '1') {
 	document.body.innerHTML = request.responseText;
 }
 else {
-	// loadButtons();
-	// setEventForCheckboxes();
+	loadButtons();
+	setEventForCheckboxes();
 	var player;
 	function onYouTubeIframeAPIReady() {
-		// const player = new YT.Player('player', {
-		//   height: '360',
-		//   width: '640',
-		//   videoId: 'QQWypVT15Tg',
-		//   playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
-		//   events: {
-		// 	'onReady': onPlayerReady,
-		// 	'onStateChange': onPlayerStateChange
-		//   }
-		// });
 		var request = new XMLHttpRequest();
 		request.open('POST', 
 			window.location.protocol + 
@@ -123,18 +113,50 @@ else {
 			const urlInputDom = document.querySelector('#search_input');
 			const url = urlInputDom.value;
 			var request = new XMLHttpRequest();
-				request.open('GET', 
-					'https://noembed.com/embed?url=' + url,
-					false
+			request.open('GET', 
+				'https://noembed.com/embed?url=' + url,
+				false
+			);
+			request.send();
+			response = JSON.parse(request.response)
+			if (!response.error) {
+				videoId = parseIdFromURL(url);
+				videoTitle = response.title;
+				videoAuthor = response.author_name;
+				videoPreviewImgURL = response.thumbnail_url;
+				var request = new XMLHttpRequest();
+				request.open('POST', 
+					window.location.protocol + 
+					"//" + 
+					window.location.hostname + 
+					":" + 
+					window.location.port + 
+					"/api/youtube/video/", 
+					true
 				);
-				request.send();
-				response = JSON.parse(request.response)
-				if (!response.error)
-					videoId = parseIdFromURL(url);
-					videoTitle = response.title;
-					videoAuthor = response.author_name;
-					videoPreviewImgURL = response.thumbnail_url;
+				body = JSON.stringify({"room_name": roomName,
+					"user_sessionid": userSessionid,
+					"video_url": url, 
+					"video_preview_img_url": videoPreviewImgURL,
+					"video_title": videoTitle
+				})
+				request.setRequestHeader("Content-Type", "application/json");
+				request.send(body);
+			};
 		};
+	};
+
+	function setVideoPlayer(videoId) {
+		const player = new YT.Player('player', {
+			height: '360',
+			width: '640',
+			videoId: videoId,
+			playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
+			events: {
+				'onReady': onPlayerReady,
+				'onStateChange': onPlayerStateChange
+			}
+		});
 	};
 
 	function parseIdFromURL(url) {

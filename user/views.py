@@ -54,7 +54,7 @@ class CreateUserAPIView(APIView):
 			user_status = user_serializer.data.get('user_status')
 			room_id = user_serializer.data.get('room')
 			user = User(user_status=user_status,
-				room=Room.objects.filter(id=room_id)[0],
+				room=Room.objects.get(id=room_id)[0],
 				session=session,
 			)
 			user.save()
