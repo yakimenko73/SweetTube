@@ -28,11 +28,11 @@ class Room(models.Model):
 	moder_can_use_chat = models.BooleanField(null=False, default=True)
 	moder_can_kick = models.BooleanField(null=False, default=False)
 
-	guest_can_add = models.BooleanField(null=False, default=False)
+	guest_can_add = models.BooleanField(null=False, default=True)
 	guest_can_remove = models.BooleanField(null=False, default=False)
 	guest_can_move = models.BooleanField(null=False, default=False)
 	guest_can_playpause = models.BooleanField(null=False, default=False)
-	guest_can_seek = models.BooleanField(null=False, default=True)
+	guest_can_seek = models.BooleanField(null=False, default=False)
 	guest_can_skip = models.BooleanField(null=False, default=False)
 	guest_can_use_chat = models.BooleanField(null=False, default=True)
 	guest_can_kick = models.BooleanField(null=False, default=False)

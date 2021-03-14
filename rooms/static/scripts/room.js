@@ -1,7 +1,9 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
+const roomPermissions = JSON.parse(document.getElementById('room-permissions').textContent);
 const userNickname = JSON.parse(document.getElementById('user-nickname').textContent);
 const userSessionid = JSON.parse(document.getElementById('user-sessionid').textContent);
 const userColor = JSON.parse(document.getElementById('user-color').textContent);
+const userStatus = JSON.parse(document.getElementById('user-status').textContent);
 
 if (localStorage.getItem(roomName) === '1') {
 	var request = new XMLHttpRequest();
@@ -29,7 +31,7 @@ else {
 		);
 		body = roomName;
 		request.send(body);
-	  };
+	};
 
 	function onPlayerReady(event) {
 		event.target.playVideo();
@@ -47,8 +49,21 @@ else {
 					console.log('playing ' + clearTime);
 				break;
 			case 2:
-				if (videoDuration - clearTime != 0)
-					console.log('paused');
+				if (videoDuration - clearTime != 0) {
+					switch(userStatus) {
+						case "HO":
+							event.target.playVideo();
+							break;
+						case "MO":
+							if (!roomPermissions.moder_can_playpause)
+								event.target.playVideo();
+							break;
+						case "GU":
+							if (!roomPermissions.guest_can_playpause)
+								event.target.playVideo();
+							break; 
+					};
+				};
 				break;
 			case 0:
 				console.log('ended');
@@ -56,6 +71,19 @@ else {
 			case 3:
 				console.log("buffering " + Math.round(event.target.getCurrentTime()));
 		};
+	};
+
+	function setVideoPlayer(videoId) {
+		const player = new YT.Player('player', {
+			height: '360',
+			width: '640',
+			videoId: videoId,
+			playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
+			events: {
+				'onReady': onPlayerReady,
+				'onStateChange': onPlayerStateChange
+			}
+		});
 	};
 
 	const socket = new WebSocket(
@@ -68,14 +96,19 @@ else {
 
 	socket.onmessage = function(e) {
 		const data = JSON.parse(e.data);
-		if (data.type === "visitors")
+		if (data.type === "chat_message")
+			addMessageToChatArea(data.message, data.color, data.author);
+		else if (data.type === "update_user_counter")
 			updateUserCounter(isIncrement=data.isIncrement, count=data.value);
-		else if (data.type === "system_message")
-			addMessageToChatArea(data.message)
 		else if (data.type === "update_user_list")
-		updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd)
-		else
-			addMessageToChatArea(data.message, data.color, data.author)
+			updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
+		else if (data.type === "system_message")
+			addMessageToChatArea(data.message);
+		else {
+			var videoId = parseIdFromURL(data.videoURL);
+			console.log(videoId);
+			setVideoPlayer(videoId);
+		}
 	};
 
 	socket.onopen = function(e) {
@@ -108,7 +141,7 @@ else {
 		};
 	};
 
-	document.querySelector('#search_input').onkeyup = function(e) {
+	document.querySelector('#search_input').onkeyup = function(e) {	
 		if (e.keyCode >= 48 & e.keyCode <= 90) { // characters and numbers
 			const urlInputDom = document.querySelector('#search_input');
 			const url = urlInputDom.value;
@@ -120,7 +153,6 @@ else {
 			request.send();
 			response = JSON.parse(request.response)
 			if (!response.error) {
-				videoId = parseIdFromURL(url);
 				videoTitle = response.title;
 				videoAuthor = response.author_name;
 				videoPreviewImgURL = response.thumbnail_url;
@@ -142,21 +174,16 @@ else {
 				})
 				request.setRequestHeader("Content-Type", "application/json");
 				request.send(body);
+				// sharing video
+				socket.send(JSON.stringify({
+					'type': "new_video",
+					'userNickname': userNickname,
+					'videoURL': url,
+					'videoPreviewURL': videoPreviewImgURL,
+					'videoTitle': videoTitle
+				}));
 			};
 		};
-	};
-
-	function setVideoPlayer(videoId) {
-		const player = new YT.Player('player', {
-			height: '360',
-			width: '640',
-			videoId: videoId,
-			playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
-			events: {
-				'onReady': onPlayerReady,
-				'onStateChange': onPlayerStateChange
-			}
-		});
 	};
 
 	function parseIdFromURL(url) {

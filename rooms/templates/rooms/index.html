@@ -12,8 +12,10 @@
 		<script src="https://www.youtube.com/iframe_api"></script>
 		<script async src="/static/scripts/room.js"></script>
 		{{ room_name|json_script:"room-name" }}
+		{{ room_permissions|json_script:"room-permissions" }}
 		{{ user_session_key|json_script:"user-sessionid" }}
 		{{ user_nickname|json_script:"user-nickname" }}
+		{{ user_status|json_script:"user-status" }}
 		{{ user_color|json_script:"user-color" }}
 	</head>
 	<body>

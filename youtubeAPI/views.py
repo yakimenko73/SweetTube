@@ -65,7 +65,6 @@ class CreateVideoAPIView(APIView):
 			"playlist": playlist_id,
 			"user": user_id,
 		}
-
 		video_serializer = self.video_serializer_class(data=clear_data)
 		if video_serializer.is_valid():
 			video = Video(video_url=clear_data["video_url"], 

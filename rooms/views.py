@@ -30,6 +30,7 @@ class RoomView(View):
 		if roomset.exists():
 			room = roomset[0]
 			room_data = RoomSerializer(room).data
+			room_permissions = RoomSettingsSerializer(room).data
 		else:
 			return self.room_not_found_render(request, room_name)
 
@@ -45,7 +46,7 @@ class RoomView(View):
 			for index, session in enumerate(session_keys):
 				if current_session_key == session:
 					user_data = UserSerializer(userset[index]).data
-					return self.room_render(request, room_data, user_data)
+					return self.room_render(request, room_data, user_data, room_permissions)
 		else:
 			return self.create_guest_user(request, room_name, room_data["id"])
 
@@ -84,12 +85,14 @@ class RoomView(View):
 			'error_message': status.HTTP_200_OK,
 		})
 
-	def room_render(self, request, room_data, user_data):
+	def room_render(self, request, room_data, user_data, room_permissions):
 		return render(request, 'rooms/index.html', {
 			'room_name': room_data["code"],
 			'room_id': room_data["id"],
+			'room_permissions': room_permissions,
 			'user_nickname': user_data["user_nickname"],
 			'user_session_key': request.session.session_key,
 			'user_color': user_data["user_color"],
+			'user_status': user_data["user_status"],
 			'error_message': status.HTTP_200_OK,
 		})
