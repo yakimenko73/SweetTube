@@ -97,7 +97,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
-				'type': 'chat_visitors',
+				'type': 'update_user_counter',
 				'value': -1,
 				'isIncrement': True
 			}
