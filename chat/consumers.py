@@ -1,6 +1,5 @@
 import json
 import re
-import asyncio
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -151,6 +150,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				user_nickname, video_url, 
 				video_preview_url, video_title
 			])
+		elif message_type == "pause_video":
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{'type': message_type, }
+			)
 		else:
 			message = text_data_json['message']
 			author = text_data_json['author']
@@ -200,6 +204,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'videoURL': event['videoURL'],
 			'videoPreviewURL': event['videoPreviewURL'],
 			'videoTitle': event['videoTitle']
+		}))
+	
+	async def pause_video(self, event):
+		''' Sends a command to pause the video '''
+		await self.send(text_data=json.dumps({
+			'type': "pause_video"
 		}))
 
 	async def update_user_list(self, event):

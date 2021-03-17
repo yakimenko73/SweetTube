@@ -15,9 +15,16 @@ if (localStorage.getItem(roomName) === '1') {
 	document.body.innerHTML = request.responseText;
 }
 else {
+	var player;
+	const socket = new WebSocket(
+		'ws://' +
+		window.location.host +
+		'/ws/chat/' +
+		roomName +
+		'/'
+	);
 	loadButtons();
 	setEventForCheckboxes();
-	var player;
 	function onYouTubeIframeAPIReady() {
 		var request = new XMLHttpRequest();
 		request.open('POST', 
@@ -42,17 +49,19 @@ else {
 		clearTime = Math.round(event.target.getCurrentTime());
 		videoDuration = event.target.getDuration();
 		switch (event.data) {
-			case 1:
+			case 1: // started/playing
 				if (clearTime == 0)
 					console.log('started ' + clearTime);
 				else
 					console.log('playing ' + clearTime);
 				break;
-			case 2:
+			case 2: // pause
 				if (videoDuration - clearTime != 0) {
 					switch(userStatus) {
 						case "HO":
-							event.target.playVideo();
+							socket.send(JSON.stringify({
+								'type': "pause_video",
+							}));
 							break;
 						case "MO":
 							if (!roomPermissions.moder_can_playpause)
@@ -65,16 +74,16 @@ else {
 					};
 				};
 				break;
-			case 0:
+			case 0: // ended
 				console.log('ended');
 				break;
-			case 3:
+			case 3: // buffering
 				console.log("buffering " + Math.round(event.target.getCurrentTime()));
 		};
 	};
 
-	function setVideoPlayer(videoId) {
-		const player = new YT.Player('player', {
+	function videoPlayer(videoId=null, flag=null) {
+		player = new YT.Player('player', {
 			height: '360',
 			width: '640',
 			videoId: videoId,
@@ -84,31 +93,43 @@ else {
 				'onStateChange': onPlayerStateChange
 			}
 		});
+		switch(flag) {
+			case "pause":
+				player.pauseVideo();
+				break;
+			case "play":
+				player.playVideo();
+				break;
+			case "seek":
+				console.log("seek");
+				break;
+		};
 	};
-
-	const socket = new WebSocket(
-		'ws://' +
-		window.location.host +
-		'/ws/chat/' +
-		roomName +
-		'/'
-	);
 
 	socket.onmessage = function(e) {
 		const data = JSON.parse(e.data);
-		if (data.type === "chat_message")
-			addMessageToChatArea(data.message, data.color, data.author);
-		else if (data.type === "update_user_counter")
-			updateUserCounter(isIncrement=data.isIncrement, count=data.value);
-		else if (data.type === "update_user_list")
-			updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
-		else if (data.type === "system_message")
-			addMessageToChatArea(data.message);
-		else {
-			var videoId = parseIdFromURL(data.videoURL);
-			console.log(videoId);
-			setVideoPlayer(videoId);
-		}
+		switch (data.type) {
+			case "chat_message":
+				addMessageToChatArea(data.message, data.color, data.author);
+				break;
+			case "update_user_counter":
+				updateUserCounter(isIncrement=data.isIncrement, count=data.value);
+				break;
+			case "update_user_list":
+				updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
+				break;
+			case "system_message":
+				addMessageToChatArea(data.message);
+				break;
+			case "new_video":
+				var videoId = parseIdFromURL(data.videoURL);
+				videoPlayer(videoId);
+				break;
+			case "pause_video":
+				alert("pause")
+				videoPlayer(null, "pause");
+				break;
+		};
 	};
 
 	socket.onopen = function(e) {
@@ -184,16 +205,6 @@ else {
 				}));
 			};
 		};
-	};
-
-	function parseIdFromURL(url) {
-		var id = url.split('v=')[1];
-		if (!id)
-			var id = url.split('be/')[1];
-		var ampersandPosition = id.indexOf('&');
-		if(ampersandPosition != -1)
-			id = id.substring(0, ampersandPosition);
-		return id;
 	};
 	
 	document.querySelector('#btnPlaylist').onclick = function() {
@@ -435,5 +446,15 @@ else {
 			addButtons("header");
 		else
 			addButtons("center");
+	};
+
+	function parseIdFromURL(url) {
+		var id = url.split('v=')[1];
+		if (!id)
+			var id = url.split('be/')[1];
+		var ampersandPosition = id.indexOf('&');
+		if(ampersandPosition != -1)
+			id = id.substring(0, ampersandPosition);
+		return id;
 	};
 };
