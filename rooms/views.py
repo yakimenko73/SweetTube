@@ -20,8 +20,7 @@ from user.models import User, Session
 
 class ListRoomView(View):
 	def get(self, request, format=None):
-		response = requests.get("http://127.0.0.1:8000/api/rooms/")	
-		return HttpResponse(f"{response.json()}")
+		return redirect("http://127.0.0.1:8000/api/rooms/")
 
 
 class RoomView(View):

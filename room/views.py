@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.middleware import csrf
 from django.shortcuts import redirect, render
+from django.core import serializers
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -113,9 +114,12 @@ class UpdateRoomAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class ListRoomAPIView(ListAPIView):
-	queryset = Room.objects.all()
-	serializer_class = RoomSerializer
+	def get(self, request, foramt=None):
+		queryset = Room.objects.all()
+		data = serializers.serialize('json', queryset)
+		return HttpResponse(data, content_type='application/json', status=status.HTTP_200_OK)
 
+	
 
 class Create(View):
 	def get(self, request, format=None):

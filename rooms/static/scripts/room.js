@@ -127,9 +127,6 @@ else {
 			case "update_user_list":
 				updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
 				break;
-			case "system_message":
-				addMessageToChatArea(data.message);
-				break;
 			case "new_video":
 				var videoId = parseIdFromURL(data.videoURL);
 				videoPlayer(videoId);

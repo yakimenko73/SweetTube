@@ -157,12 +157,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				}
 			)
 
-			if message_type != "system_message":
-				self.r.rpush(f"messages_{self.room_name}", str({
-					"author": author,
-					"color": color,
-					"message": message
-				}))
+			self.r.rpush(f"messages_{self.room_name}", str({
+				"author": author,
+				"color": color,
+				"message": message
+			}))
 
 	async def chat_message(self, event):
 		''' Receive message from room group '''
@@ -180,13 +179,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'value': event['value'],
 			'userNickname':event['userNickname'],
 			'flag': event["flag"]
-		}))
-
-	async def system_message(self, event):
-		''' Receive system messages from room group '''
-		await self.send(text_data=json.dumps({
-			'type': "system_message",
-			'message': event['message']
 		}))
 
 	async def new_video(self, event):
