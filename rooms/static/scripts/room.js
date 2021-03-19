@@ -113,6 +113,15 @@ else {
 				addMessageToChatArea(data.message, data.color, data.author);
 				break;
 			case "update_user_counter":
+				switch (data.flag) {
+					case "left":
+						message = data.userNickname + " left the room";
+						break;
+					case "join":
+						message = data.userNickname + " joined the room";
+						break;
+				}
+				addMessageToChatArea(message=message);
 				updateUserCounter(count=data.value);
 				break;
 			case "update_user_list":
