@@ -41,7 +41,6 @@ else {
 	};
 
 	function onPlayerReady(event) {
-		event.target.playVideo();
 		event.target.mute();
 	};
 
@@ -52,24 +51,35 @@ else {
 			case 1: // started/playing
 				if (clearTime == 0)
 					console.log('started ' + clearTime);
-				else
-					console.log('playing ' + clearTime);
+				else {
+					switch(userStatus) {
+						case "HO":
+							socket.send(JSON.stringify({
+								'type': "play/pause",
+								'sender': userSessionid,
+								'side': "play"
+							}));
+							break;
+						case "MO":
+							break;
+						case "GU":
+							break; 
+					};
+				}
 				break;
 			case 2: // pause
 				if (videoDuration - clearTime != 0) {
 					switch(userStatus) {
 						case "HO":
 							socket.send(JSON.stringify({
-								'type': "pause_video",
+								'type': "play/pause",
+								'sender': userSessionid,
+								'side': "pause"
 							}));
 							break;
 						case "MO":
-							if (!roomPermissions.moder_can_playpause)
-								event.target.playVideo();
 							break;
 						case "GU":
-							if (!roomPermissions.guest_can_playpause)
-								event.target.playVideo();
 							break; 
 					};
 				};
@@ -82,18 +92,29 @@ else {
 		};
 	};
 
-	function videoPlayer(videoId=null, flag=null) {
-		player = new YT.Player('player', {
-			height: '360',
-			width: '640',
-			videoId: videoId,
-			playerVars: { 'autoplay': 1, 'controls': 1, 'disablekb': 1, 'origin': window.location.hostname },
-			events: {
-				'onReady': onPlayerReady,
-				'onStateChange': onPlayerStateChange
-			}
-		});
+	function videoPlayerHandler(videoId=null, flag=null) {
 		switch(flag) {
+			case "start":
+				player = new YT.Player('player', {
+					height: '360',
+					width: '640',
+					videoId: videoId,
+					host: "https://www.youtube-nocookie.com",
+					playerVars: {
+						autoplay: 1,
+						controls: 1,
+						disablekb: 1,
+						enablejsapi: 1,
+						iv_load_policy: 3,
+						origin: "http://127.0.0.1:8000/",
+						'playsinline': 1
+					},
+					events: {
+						'onReady': onPlayerReady,
+						'onStateChange': onPlayerStateChange
+					}
+				});
+				break;
 			case "pause":
 				player.pauseVideo();
 				break;
@@ -129,11 +150,14 @@ else {
 				break;
 			case "new_video":
 				var videoId = parseIdFromURL(data.videoURL);
-				videoPlayer(videoId);
+				videoPlayerHandler(videoId, flag="start");
 				break;
-			case "pause_video":
-				alert("pause")
-				videoPlayer(null, "pause");
+			case "play/pause":
+				if (data.sender != userSessionid)
+					if (data.side === "pause")
+					videoPlayerHandler(videoId=null, flag="pause");
+					else
+					videoPlayerHandler(videoId=null, flag="play");
 				break;
 		};
 	};

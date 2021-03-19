@@ -138,10 +138,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"videoPreviewURL": video_preview_url,
 					"videoTitle": video_title
 				}))
-		elif message_type == "pause_video":
+		elif message_type == "play/pause":
 			await self.channel_layer.group_send(
 				self.room_group_name,
-				{'type': message_type, }
+				{
+					"type": "play_pause_video", 
+					"sender": text_data_json['sender'],
+					"side": text_data_json['side'],
+				}
 			)
 		else:
 			message = text_data_json['message']
@@ -191,10 +195,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'videoTitle': event['videoTitle']
 		}))
 	
-	async def pause_video(self, event):
+	async def play_pause_video(self, event):
 		''' Sends a command to pause the video '''
 		await self.send(text_data=json.dumps({
-			'type': "pause_video"
+			'type': "play/pause",
+			'sender': event["sender"],
+			'side': event["side"],
 		}))
 
 	async def update_user_list(self, event):
