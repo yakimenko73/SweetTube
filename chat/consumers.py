@@ -1,5 +1,6 @@
 import json
 import re
+import redis
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -12,17 +13,14 @@ from user.serializers import UserSerializer, SessionSerializer, UserSessionSeria
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
-	async def connect(self, sessions={}):
+	r = redis.Redis()
+	async def connect(self):
 		self.room_name = self.scope['url_route']['kwargs']['room_name']
 		self.room_id = await self.get_room_id()
 		self.room_group_name = f'chat_{self.room_name}'
 		self.session_key = self.scope["cookies"]["sessionid"]
 		self.user_nickname = await self.get_user_nickname()
 		self.color_user_in_list = await self.define_user_color_in_list()
-		self.user_data = [self.session_key, 
-			self.user_nickname, 
-			self.color_user_in_list, 
-		]
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -30,18 +28,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		)
 		await self.accept()
 
-		try:
-			sessions[self.room_name].append(self.user_data)
-		except KeyError as ex:
-			sessions[self.room_name] = [self.user_data, ]
-
-		number_users = self.number_users_in_room(sessions)
+		self.user_counter = self.r.hincrby("user_counters", self.room_name, 1)
+		self.r.hmset(f"visitors_{self.room_name}", {
+			self.session_key: str({
+				"sessionid": self.session_key,
+				"user_nickname": self.user_nickname,
+				"color_user_in_list": self.color_user_in_list
+			})
+		})
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'update_user_counter',
-				'value': number_users,
+				'value': self.user_counter,
 				'isIncrement': False
 			}
 		)
@@ -54,51 +54,51 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			}
 		)
 
-		for session in sessions[self.room_name]:
+		list_sessions = self.r.hvals(f"visitors_{self.room_name}")
+		for session in list_sessions:
+			session_dict = eval(session)
 			await self.channel_layer.group_send(
 				self.room_group_name,
 				{
 					'type': 'update_user_list',
-					'userId': session[0],
-					'userNickname': session[1],
-					'userColor': session[2],
+					'userId': session_dict["sessionid"],
+					'userNickname': session_dict["user_nickname"],
+					'userColor': session_dict["color_user_in_list"],
 					'isAdd': 1
 				}
 			)
 
-		# upload saved data to WebSocket
-		if self.receive.__defaults__[0]: # messages
-			for message in self.receive.__defaults__[0]:
-				if message[0] == self.room_name:
-					await self.send(text_data=json.dumps({
-						'type': "chat_message",
-						'message': message[1],
-						'author': message[2],
-						'color': message[3],
-					}))
+		list_messages = self.r.lrange(f"messages_{self.room_name}", 0, -1)
+		for message in list_messages:
+			message_dict = eval(message)
+			await self.send(text_data=json.dumps({
+				'type': "chat_message",
+				'author': message_dict["author"],
+				'color': message_dict["color"],
+				'message': message_dict["message"],
+			}))
 
-		if self.receive.__defaults__[1]: # videos
-			for video in self.receive.__defaults__[1]:
-				if video[0] == self.room_name:
-					await self.send(text_data=json.dumps({
-						'type': "new_video",
-						'userNickname':  video[1],
-						'videoURL':  video[2],
-						'videoPreviewURL':  video[3],
-						'videoTitle':  video[4],
-					}))
+		list_videos = self.r.lrange(f"videos_{self.room_name}", 0, -1)
+		for video in list_videos:
+			video_dict = eval(video)
+			await self.send(text_data=json.dumps({
+				'type': "new_video",
+				'userNickname': video_dict["userNickname"],
+				'videoURL':  video_dict["videoURL"],
+				'videoPreviewURL':  video_dict["videoPreviewURL"],
+				'videoTitle':  video_dict["videoTitle"],
+			}))
 
 	async def disconnect(self, close_code):
-		sessions = self.connect.__defaults__[0][self.room_name]
-		sessions.remove(self.user_data)
-
-		# sending a new users counter state
+		self.user_counter = self.r.hincrby("user_counters", self.room_name, -1)
+		self.r.hdel(f"visitors_{self.room_name}", self.session_key)
+		
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
 				'type': 'update_user_counter',
-				'value': -1,
-				'isIncrement': True
+				'value': self.user_counter,
+				'isIncrement': False
 			}
 		)
 
@@ -114,8 +114,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.room_group_name,
 			{
 				'type': 'update_user_list',
-				'userNickname': self.user_nickname,
 				'userId': self.session_key,
+				'userNickname': self.user_nickname,
 				'userColor': self.color_user_in_list,
 				'isAdd': 0
 			}
@@ -126,7 +126,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.channel_name
 		)
 
-	async def receive(self, text_data, messages=[], videos=[]):
+	async def receive(self, text_data):
 		''' Receive message from WebSocket '''
 		text_data_json = json.loads(text_data)
 		message_type = text_data_json["type"]
@@ -146,10 +146,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					'videoTitle': video_title,
 				}
 			)
-			videos.append([self.room_name, 
-				user_nickname, video_url, 
-				video_preview_url, video_title
-			])
+			self.r.rpush(f"videos{self.room_name}", str({
+					"userNickname": user_nickname,
+					"videoURL": video_url,
+					"videoPreviewURL": video_preview_url,
+					"videoTitle": video_title
+				}))
 		elif message_type == "pause_video":
 			await self.channel_layer.group_send(
 				self.room_group_name,
@@ -170,7 +172,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			)
 
 			if message_type != "system_message":
-				messages.append([self.room_name, message, author, color])
+				self.r.rpush(f"messages_{self.room_name}", str({
+					"author": author,
+					"color": color,
+					"message": message
+				}))
 
 	async def chat_message(self, event):
 		''' Receive message from room group '''
@@ -221,10 +227,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'userColor': event['userColor'],
 			'isAdd': event["isAdd"]
 		}))
-
-	def number_users_in_room(self, sessions):
-		number_users = len(sessions[self.room_name])
-		return number_users
 
 	@database_sync_to_async
 	def get_room_id(self):
