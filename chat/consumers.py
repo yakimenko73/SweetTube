@@ -42,17 +42,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			{
 				'type': 'update_user_counter',
 				'value': self.user_counter,
-				'isIncrement': False
+				'flag': "join"
 			}
 		)
 
-		await self.channel_layer.group_send(
-			self.room_group_name,
-			{
-				'type': 'system_message',
-				'message': f"{self.user_nickname} joined the room"
-			}
-		)
+		# await self.channel_layer.group_send(
+		# 	self.room_group_name,
+		# 	{
+		# 		'type': 'system_message',
+		# 		'message': f"{self.user_nickname} joined the room"
+		# 	}
+		# )
 
 		list_sessions = self.r.hvals(f"visitors_{self.room_name}")
 		for session in list_sessions:
@@ -98,17 +98,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			{
 				'type': 'update_user_counter',
 				'value': self.user_counter,
-				'isIncrement': False
+				'flag': "left"
 			}
 		)
 
-		await self.channel_layer.group_send(
-			self.room_group_name,
-			{
-				'type': 'system_message',
-				'message': f"{self.user_nickname} left the room"
-			}
-		)
+		# await self.channel_layer.group_send(
+		# 	self.room_group_name,
+		# 	{
+		# 		'type': 'system_message',
+		# 		'message': f"{self.user_nickname} left the room"
+		# 	}
+		# )
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -146,7 +146,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					'videoTitle': video_title,
 				}
 			)
-			self.r.rpush(f"videos{self.room_name}", str({
+			self.r.rpush(f"videos_{self.room_name}", str({
 					"userNickname": user_nickname,
 					"videoURL": video_url,
 					"videoPreviewURL": video_preview_url,
@@ -192,7 +192,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps({
 			'type': "update_user_counter",
 			'value': event['value'],
-			'isIncrement': event["isIncrement"]
+			'flag': event["flag"]
 		}))
 
 	async def system_message(self, event):

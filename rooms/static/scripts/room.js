@@ -113,7 +113,7 @@ else {
 				addMessageToChatArea(data.message, data.color, data.author);
 				break;
 			case "update_user_counter":
-				updateUserCounter(isIncrement=data.isIncrement, count=data.value);
+				updateUserCounter(count=data.value);
 				break;
 			case "update_user_list":
 				updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
@@ -301,13 +301,9 @@ else {
 		return span;
 	};
 
-	function updateUserCounter(isIncrement=true, count=1) {
+	function updateUserCounter(count=0) {
 		let userCounter = document.getElementById("user-counter");
-		let oldCounter = Number(userCounter.textContent);
-		if(isIncrement)
-			var newCounter = oldCounter + count;
-		else
-			var newCounter = count;
+		var newCounter = count;
 		if (newCounter < 0)
 			newCounter = 0;
 		userCounter.textContent = newCounter;
