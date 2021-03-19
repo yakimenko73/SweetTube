@@ -153,11 +153,9 @@ else {
 				videoPlayerHandler(videoId, flag="start");
 				break;
 			case "play/pause":
+				flag = data.side === "pause" ? "pause" : "play";
 				if (data.sender != userSessionid)
-					if (data.side === "pause")
-					videoPlayerHandler(videoId=null, flag="pause");
-					else
-					videoPlayerHandler(videoId=null, flag="play");
+					videoPlayerHandler(videoId=null, flag=flag);
 				break;
 		};
 	};
