@@ -61,11 +61,30 @@ else {
 							}));
 							break;
 						case "MO":
+							if (localStorage.getItem("isCallingPlayPauseVideo") != "1")
+								if (!roomPermissions.moder_can_playpause)
+									event.target.pauseVideo();
+								else 
+									socket.send(JSON.stringify({
+										'type': "play/pause",
+										'sender': userSessionid,
+										'side': "play"
+									}));
 							break;
 						case "GU":
+							if (localStorage.getItem("isCallingPlayPauseVideo") != "1")
+								if (!roomPermissions.guest_can_playpause)
+									event.target.pauseVideo();
+								else 
+									socket.send(JSON.stringify({
+										'type': "play/pause",
+										'sender': userSessionid,
+										'side': "play"
+									}));
 							break; 
 					};
-				}
+					localStorage.removeItem("isCallingPlayPauseVideo"); 
+				};
 				break;
 			case 2: // pause
 				if (videoDuration - clearTime != 0) {
@@ -78,10 +97,29 @@ else {
 							}));
 							break;
 						case "MO":
+							if (localStorage.getItem("isCallingPlayPauseVideo") != "1")
+								if (!roomPermissions.moder_can_playpause)
+									event.target.playVideo();
+								else 
+									socket.send(JSON.stringify({
+										'type': "play/pause",
+										'sender': userSessionid,
+										'side': "pause"
+									}));
 							break;
 						case "GU":
+							if (localStorage.getItem("isCallingPlayPauseVideo") != "1")
+								if (!roomPermissions.guest_can_playpause)
+									event.target.playVideo();
+								else 
+									socket.send(JSON.stringify({
+										'type': "play/pause",
+										'sender': userSessionid,
+										'side': "pause"
+									}));
 							break; 
 					};
+					localStorage.removeItem("isCallingPlayPauseVideo");
 				};
 				break;
 			case 0: // ended
@@ -114,8 +152,10 @@ else {
 						'onStateChange': onPlayerStateChange
 					}
 				});
+				document.getElementById("novideo").className = "novideo";
 				break;
 			case "pause":
+				localStorage.setItem("isCallingPlayPauseVideo", 1);
 				player.pauseVideo();
 				break;
 			case "play":
