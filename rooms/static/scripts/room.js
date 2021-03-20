@@ -45,31 +45,36 @@ else {
 	};
 
 	function onPlayerStateChange(event) {
-		clearTime = Math.round(event.target.getCurrentTime());
+		currentTime = event.target.getCurrentTime();
 		videoDuration = event.target.getDuration();
 		switch (event.data) {
 			case 1: // started/playing
-				if (clearTime == 0)
-					console.log('started ' + clearTime);
+				if (currentTime == 0)
+					console.log('started ' + currentTime);
 				else {
+					console.log('playing ' + currentTime);
 					if (localStorage.getItem("isCallingPlayPauseVideo") != "1") {
 						switch(userStatus) {
 							case "HO":
 								socket.send(JSON.stringify({
 									'type': "play/pause",
 									'sender': userSessionid,
-									'side': "play"
+									'side': "play", 
+									'time': event.target.getCurrentTime()
 								}));
 								break;
 							case "MO":
-								if (!roomPermissions.moder_can_playpause)
-										event.target.pauseVideo();
-									else 
-										socket.send(JSON.stringify({
-											'type': "play/pause",
-											'sender': userSessionid,
-											'side': "play"
-										}));
+								if (!roomPermissions.moder_can_playpause) {
+									localStorage.setItem("isCallingPlayPauseVideo", 1);
+									event.target.pauseVideo();
+								}
+								else 
+									socket.send(JSON.stringify({
+										'type': "play/pause",
+										'sender': userSessionid,
+										'side': "play",
+										'time': event.target.getCurrentTime()
+									}));
 								break;
 							case "GU":
 								if (!roomPermissions.guest_can_playpause) {
@@ -80,7 +85,8 @@ else {
 									socket.send(JSON.stringify({
 										'type': "play/pause",
 										'sender': userSessionid,
-										'side': "play"
+										'side': "play",
+										'time': event.target.getCurrentTime()
 									}));
 								break;
 						};
@@ -90,24 +96,29 @@ else {
 				};
 				break;
 			case 2: // pause
-				if (videoDuration - clearTime != 0) {
+				console.log("paused " + currentTime);
+				if (videoDuration - currentTime != 0) {
 					if (localStorage.getItem("isCallingPlayPauseVideo") != "1") {
 						switch(userStatus) {
 							case "HO":
 								socket.send(JSON.stringify({
 									'type': "play/pause",
 									'sender': userSessionid,
-									'side': "pause"
+									'side': "pause",
+									'time': event.target.getCurrentTime()
 								}));
 								break;
 							case "MO":
-								if (!roomPermissions.moder_can_playpause)
+								if (!roomPermissions.moder_can_playpause) {
+									localStorage.setItem("isCallingPlayPauseVideo", 1);
 									event.target.playVideo();
+								}
 								else 
 									socket.send(JSON.stringify({
 										'type': "play/pause",
 										'sender': userSessionid,
-										'side': "pause"
+										'side': "pause",
+										'time': event.target.getCurrentTime()
 									}));
 								break;
 							case "GU":
@@ -119,7 +130,8 @@ else {
 									socket.send(JSON.stringify({
 										'type': "play/pause",
 										'sender': userSessionid,
-										'side': "pause"
+										'side': "pause",
+										'time': event.target.getCurrentTime()
 									}));
 								break; 
 						};
@@ -129,14 +141,14 @@ else {
 				};
 				break;
 			case 0: // ended
-				console.log('ended');
+				console.log('ended ' + currentTime);
 				break;
 			case 3: // buffering
-				console.log("buffering " + Math.round(event.target.getCurrentTime()));
+				console.log("buffering " + currentTime);
 		};
 	};
 
-	function videoPlayerHandler(videoId=null, flag=null) {
+	function videoPlayerHandler(videoId=null, flag=null, seconds=null) {
 		switch(flag) {
 			case "start":
 				player = new YT.Player('player', {
@@ -150,6 +162,7 @@ else {
 						disablekb: 1,
 						enablejsapi: 1,
 						iv_load_policy: 3,
+						rel: 0,
 						origin: "http://127.0.0.1:8000/",
 						'playsinline': 1
 					},
@@ -163,9 +176,11 @@ else {
 			case "pause":
 				localStorage.setItem("isCallingPlayPauseVideo", 1);
 				player.pauseVideo();
+				player.seekTo(seconds);
 				break;
 			case "play":
 				localStorage.setItem("isCallingPlayPauseVideo", 1);
+				player.seekTo(seconds);
 				player.playVideo();
 				break;
 			case "seek":
@@ -202,7 +217,7 @@ else {
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
 				if (data.sender != userSessionid)
-					videoPlayerHandler(videoId=null, flag=flag);
+					videoPlayerHandler(videoId=null, flag=flag, seconds=data.time);
 				break;
 		};
 	};

@@ -145,6 +145,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"type": "play_pause_video", 
 					"sender": text_data_json['sender'],
 					"side": text_data_json['side'],
+					"time": text_data_json['time']
 				}
 			)
 		else:
@@ -196,11 +197,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		}))
 	
 	async def play_pause_video(self, event):
-		''' Sends a command to pause the video '''
+		''' Sends a command to play/pause the video '''
 		await self.send(text_data=json.dumps({
 			'type': "play/pause",
 			'sender': event["sender"],
 			'side': event["side"],
+			'time': event["time"]
 		}))
 
 	async def update_user_list(self, event):
