@@ -42,10 +42,20 @@ else {
 
 	function onPlayerReady(event) {
 		event.target.mute();
+		socket.send(JSON.stringify({'type': "get_player_config"}));
+		setInterval(() => 
+			socket.send(JSON.stringify({
+				'type': "update_player_state",
+				'state': videoPlayerHandler(videoId=null, flag="getCurrentState"),
+				'time': videoPlayerHandler(videoId=null, flag="getCurrentTime")
+			})), 
+			1000
+		);
 	};
 
 	function onPlayerStateChange(event) {
 		currentTime = event.target.getCurrentTime();
+		currentState = event.target.getPlayerState();
 		videoDuration = event.target.getDuration();
 		switch (event.data) {
 			case 1: // started/playing
@@ -151,6 +161,7 @@ else {
 	function videoPlayerHandler(videoId=null, flag=null, seconds=null) {
 		switch(flag) {
 			case "start":
+				document.getElementById("novideo").className = "novideo";
 				player = new YT.Player('player', {
 					height: '360',
 					width: '640',
@@ -162,7 +173,6 @@ else {
 						disablekb: 1,
 						enablejsapi: 1,
 						iv_load_policy: 3,
-						rel: 0,
 						origin: "http://127.0.0.1:8000/",
 						'playsinline': 1
 					},
@@ -171,7 +181,6 @@ else {
 						'onStateChange': onPlayerStateChange
 					}
 				});
-				document.getElementById("novideo").className = "novideo";
 				break;
 			case "pause":
 				localStorage.setItem("isCallingPlayPauseVideo", 1);
@@ -183,9 +192,10 @@ else {
 				player.seekTo(seconds);
 				player.playVideo();
 				break;
-			case "seek":
-				console.log("seek");
-				break;
+			case "getCurrentTime":
+				return player.getCurrentTime();
+			case "getCurrentState":
+				return player.getPlayerState();
 		};
 	};
 
@@ -218,6 +228,10 @@ else {
 				flag = data.side === "pause" ? "pause" : "play";
 				if (data.sender != userSessionid)
 					videoPlayerHandler(videoId=null, flag=flag, seconds=data.time);
+				break;
+			case "set_player_config":
+				state = data.state === "2" ? "pause" : "play";
+				videoPlayerHandler(videoId=null, flag=state, seconds=data.current_time);
 				break;
 		};
 	};
@@ -312,7 +326,7 @@ else {
 	document.querySelector('#btnCloseOverlay').onclick = function() {
 		clickCloseSettings();
 	};
-		
+
 	document.querySelector('#overlay').onclick = function() {
 		clickCloseSettings();
 	};

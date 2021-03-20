@@ -36,6 +36,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"color_user_in_list": self.color_user_in_list
 			})
 		})
+		self.r.hmset(f"player_{self.room_name}", {
+			"state": "play",
+			"current_time": "0"
+		})
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
@@ -117,7 +121,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		text_data_json = json.loads(text_data)
 		message_type = text_data_json["type"]
 
-		if message_type == "new_video":
+		if message_type == "update_player_state":
+			self.r.hmset(f"player_{self.room_name}", {
+				"state": text_data_json["state"],
+				"current_time": text_data_json["time"]
+			})
+
+		elif message_type == "get_player_config":
+			player_config = self.r.hmget(f"player_{self.room_name}", "state", "current_time")
+			await self.send(text_data=json.dumps({
+					'type': "set_player_config",
+					'state': player_config[0].decode("utf-8"),
+					'current_time': player_config[1].decode("utf-8")
+				}))
+
+		elif message_type == "new_video":
 			user_nickname = text_data_json['userNickname']
 			video_url = text_data_json['videoURL']
 			video_preview_url = text_data_json['videoPreviewURL']
@@ -138,6 +156,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"videoPreviewURL": video_preview_url,
 					"videoTitle": video_title
 				}))
+
 		elif message_type == "play/pause":
 			await self.channel_layer.group_send(
 				self.room_group_name,
@@ -186,6 +205,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'flag': event["flag"]
 		}))
 
+	async def update_user_list(self, event):
+		''' Receive a message about updating the list of users from room group '''
+		await self.send(text_data=json.dumps({
+			'type': "update_user_list",
+			'userNickname': event['userNickname'],
+			'userId': event['userId'],
+			'userColor': event['userColor'],
+			'isAdd': event["isAdd"]
+		}))
+
 	async def new_video(self, event):
 		''' Receive video info from room group '''
 		await self.send(text_data=json.dumps({
@@ -205,14 +234,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'time': event["time"]
 		}))
 
-	async def update_user_list(self, event):
-		''' Receive a message about updating the list of users from room group '''
+	async def set_player_config(self, event):
+		''' Sends a command to set player config '''
 		await self.send(text_data=json.dumps({
-			'type': "update_user_list",
-			'userNickname': event['userNickname'],
-			'userId': event['userId'],
-			'userColor': event['userColor'],
-			'isAdd': event["isAdd"]
+			'type': "set_player_config",
+			'state': event["state"],
+			'current_time': event["current_time"]
 		}))
 
 	@database_sync_to_async
