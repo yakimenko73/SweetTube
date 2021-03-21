@@ -23,20 +23,10 @@ else {
 		roomName +
 		'/'
 	);
+
 	function onYouTubeIframeAPIReady() {
-		let  request = new XMLHttpRequest();
-		request.open('POST', 
-			window.location.protocol + 
-			"//" + 
-			window.location.hostname + 
-			":" + 
-			window.location.port + 
-			"/api/youtube/playlist/", 
-			true
-		);
-		let body = roomName;
-		request.send(body);
-	}
+		console.log("YouTube iframe ready");
+	};
 
 	function onPlayerReady(event) {
 		event.target.mute();
@@ -49,7 +39,7 @@ else {
 			})), 
 			1000
 		)
-	}
+	};
 
 	function onPlayerStateChange(event) {
 		let currentTime = event.target.getCurrentTime();
@@ -221,6 +211,7 @@ else {
 			case "new_video":
 				let  videoId = parseIdFromURL(data.videoURL);
 				videoPlayerHandler(videoId, flag="start");
+				addVideoInPlaylist();
 				break;
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
@@ -322,7 +313,6 @@ else {
 	};
 
 	document.querySelector("#search_result_wrapper").onclick = function() {
-		addDOMVideoInPlayList();
 		deleteClass("search_result_wrapper", "visible");
 		document.querySelector('#search_input').value = '';
 	};
@@ -330,10 +320,7 @@ else {
 	document.querySelector('#search_input').onkeyup = function(e) {
 		if (e.keyCode == 13)
 		{
-			addDOMVideoInPlayList();
-			deleteClass("search_result_wrapper", "visible");
-			document.querySelector('#search_input').value = '';
-			// sharing video
+			let url = document.querySelector('#search_input').value;
 			socket.send(JSON.stringify({
 				'type': "new_video",
 				'userNickname': userNickname,
@@ -341,6 +328,8 @@ else {
 				'videoPreviewURL': info[3],
 				'videoTitle': info[1]
 			}));
+			deleteClass("search_result_wrapper", "visible");
+			document.querySelector('#search_input').value = '';
 		}
 	};
 	
@@ -610,7 +599,7 @@ else {
 		let id = url.match(regexp)[0];
 	
 		;return id.replace(/v=/, '');
-	}
+	};
 	
 	function setInfoInSearchResult(id, channel, title, preview) {
 		document.querySelector(".search_result").id = id;
