@@ -36,7 +36,15 @@
 					<div class="user_popup_entry" id="btn_settings">Settings</div>
 				</div>
 			</div>
-			<div class="search_result_wrapper"></div>
+			<div class="search_result_wrapper" style="display: none;" id=search_result_wrapper>
+				<div id="null" class="search_result">
+					<img id ="preview_img">
+					<div class="details">
+						<div class="title"></div>
+						<div class="channel"></div>
+					</div>
+				</div>
+			</div>
 		</header>
 		<main>
 			<div class="left_wrapper">
@@ -61,7 +69,7 @@
 						<div class="wrapper">
 							<div class="playlist tab" id="video_playlist">
 								<ul id="video_list"></ul>
-								<div class="noplaylist noselect visible">No upcoming Videos</div>
+								<div class="noplaylist noselect visible" id="noplaylist">No upcoming Videos</div>
 								<div class="edge"></div>
 							</div>
 

@@ -126,23 +126,56 @@ else {
 		};
 	};
 
+	document.querySelector('#search_input').oninput = function() {
+		const url = document.querySelector('#search_input').value;
+		let regexp = /https:\/\/www\.youtube\.com\/watch\?v=\w{11}/;
+
+		if (checkValidUrl(url, regexp))
+		{
+			let info = getInfoAboutVideo(url);
+			console.log(info);
+
+			const existUndefined = (element) => element == undefined; 
+
+			if(info.some(existUndefined))
+				return;
+
+			setInfoInSearchResult(info[0], info[2], info[1], info[3]);
+			changeClass("search_result_wrapper", "visible");
+			deleteClass("noplaylist", "visible");
+			document.querySelector(".search_result_wrapper").style = "display: block";
+		}
+		else
+		{
+			deleteClass("search_result_wrapper", "visible");
+			document.querySelector(".search_result_wrapper").style = "display: none";
+		}
+			
+	};
+
+	document.querySelector("#search_input").onfocus = function() {
+		if(checkValidUrl(document.querySelector('#search_input').value))
+			changeClass("search_result_wrapper", "visible");
+	}
+
+	document.querySelector("#search_input").onblur = function() {
+		deleteClass("search_result_wrapper", "visible");
+	}
+
+	document.querySelector("#search_result_wrapper").onclick = function() {
+		addDOMVideoInPlayList();
+		deleteClass("search_result_wrapper", "visible");
+		document.querySelector('#search_input').value = '';
+	};
+	
 	document.querySelector('#search_input').onkeyup = function(e) {
-		if (e.keyCode === 13) { // enter, return
-			const urlInputDom = document.querySelector('#search_input');
-			const url = urlInputDom.value;
-			var request = new XMLHttpRequest();
-			request.open('GET', 
-				'https://noembed.com/embed?url=' + url,
-				false
-			);
-			request.send();
-			let response = JSON.parse(request.response);
-			let title = response.title;
-			let author = response.author_name;
-			let preview = response.thumbnail_url;
-			alert(request.response);
-			urlInputDom.value = '';
-		};
+		if (e.keyCode == 13)
+		{
+			addDOMVideoInPlayList();
+			deleteClass("search_result_wrapper", "visible");
+			document.querySelector('#search_input').value = '';
+		}
+		
 	};
 	
 	window.addEventListener('resize', event => {loadButtons();})
@@ -402,5 +435,104 @@ else {
 			clickCloseSettings();
 		};
 	}
+
+	function getVideoId(url) {
+		let regexp = /v=\w*/;
+
+		try {
+			if (url.match(regexp)[0] == null)
+				return null;
+		} catch (error) {
+			return null;
+		}
+		
+		let id = url.match(regexp)[0];
+
+		return id.replace(/v=/, '');
+	}
+
+	function setInfoInSearchResult(id, channel, title, preview) {
+		document.querySelector(".search_result").id = id;
+		document.querySelector("#preview_img").src = preview;
+		document.querySelector(".title").textContent = title;
+		document.querySelector(".channel").textContent = channel;
+	}
+
+	function getInfoAboutVideo(url) {
+		let request = new XMLHttpRequest();
+		request.open('GET', 
+			'https://noembed.com/embed?url=' + url,
+			false
+		);
+		request.send();
+		let response = JSON.parse(request.response);
+		
+		let info = [];
+		info.push(getVideoId(url)); 
+		info.push(response.title);
+		info.push(response.author_name);
+		info.push(response.thumbnail_url);
+		
+		// info[0] - id
+		// info[1] - title
+		// info[2] - channel
+		// info[3] - preview
+		return info;
+	}
+
+	function checkValidUrl(url, format) {
+		try {
+			if (url.match(format).length > 0)
+				return true;
+		}
+		catch (error)
+		{
+			return false;
+		}
+	}
+
+	function addDOMVideoInPlayList() {
+		
+		const url = document.querySelector('#search_input').value;
+		let userAdded = getCurrentUser();
+		let info = getInfoAboutVideo(url);
+		let ul_videoList = document.querySelector("#video_list");
+
+		let img = document.createElement("img");
+		img.src = info[3];
+
+		let div_title = document.createElement("div");
+		div_title.className = "title";
+		div_title.textContent = info[1];
+
+		let div_info = document.createElement("div");
+		div_info.className = "info";
+		div_info.textContent = userAdded;
+
+		let div_thumbail = document.createElement("div");
+		div_thumbail.className = "thumbnail";
+		div_thumbail.appendChild(img);
+
+		let div_decs = document.createElement("div");
+		div_decs.className = "desc";
+		div_decs.appendChild(div_title);
+		div_decs.appendChild(div_info);
+
+		let li = document.createElement("li");
+		li.id = `${info[0]}_!${new Date().toUTCString()}!`;
+		li.appendChild(div_thumbail);
+		li.appendChild(div_decs);
+		
+		ul_videoList.appendChild(li);
+
+		
+	}
+
+	function getCurrentUser() {
+		//return document.querySelector("#input_userName").value;
+		return "musslim";
+	}
+	
+	//function deleteDOMVideoInPlayList()
 };
 
