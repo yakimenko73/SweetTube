@@ -25,6 +25,7 @@ else {
 	);
 	loadButtons();
 	setEventForCheckboxes();
+	
 	function onYouTubeIframeAPIReady() {
 		var request = new XMLHttpRequest();
 		request.open('POST', 
@@ -55,7 +56,6 @@ else {
 
 	function onPlayerStateChange(event) {
 		currentTime = event.target.getCurrentTime();
-		currentState = event.target.getPlayerState();
 		videoDuration = event.target.getDuration();
 		switch (event.data) {
 			case 1: // started/playing

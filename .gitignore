@@ -27,4 +27,5 @@ youtubeAPI/migrations/__pycache__/*.*
 GIT README.txt
 db.*
 parse.js
+room copy.js
 sweettube-env/
