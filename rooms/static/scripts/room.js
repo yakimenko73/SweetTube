@@ -116,6 +116,12 @@ else {
 		if (e.keyCode === 13) { // enter, return
 			const messageInputDom = document.querySelector('#chat_input');
 			const message = messageInputDom.value;
+			if (checkingMessageForErrors(message))
+			{
+				messageInputDom.value = null;
+				return;
+			}
+				
 			socket.send(JSON.stringify({
 				'type': "chat_message",
 				'message': message,
@@ -133,8 +139,6 @@ else {
 		if (checkValidUrl(url, regexp))
 		{
 			let info = getInfoAboutVideo(url);
-			console.log(info);
-
 			const existUndefined = (element) => element == undefined; 
 
 			if(info.some(existUndefined))
@@ -230,7 +234,7 @@ else {
 		let chatLog = document.getElementById("chat_log");
 		let newMessage = document.createElement("li");
 
-		if (message=="")
+		if (message==null)
 			return
 
 		if (mailer!=null) // if mailer == null -> system message
@@ -507,7 +511,7 @@ else {
 
 		let div_info = document.createElement("div");
 		div_info.className = "info";
-		div_info.textContent = userAdded;
+		div_info.textContent = `Added by${userAdded}`;
 
 		let div_thumbail = document.createElement("div");
 		div_thumbail.className = "thumbnail";
@@ -525,6 +529,20 @@ else {
 		
 		ul_videoList.appendChild(li);
 
+		
+	}
+
+	function checkingMessageForErrors(message) {
+		let regexp = /^\s*$/;
+		if (message == null)
+			return true;
+		try {
+			if (message.match(regexp).length > 0)
+				return true;
+		}
+		catch {
+			return false;
+		}
 		
 	}
 
