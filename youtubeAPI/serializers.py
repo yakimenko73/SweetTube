@@ -10,4 +10,4 @@ class PlaylistSerializer(serializers.ModelSerializer):
 class VideoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Video
-		fields = ('video', 'playlist', 'user', )
+		fields = ('video_url', 'preview_url', 'title', 'playlist', 'user', )

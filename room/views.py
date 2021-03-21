@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.middleware import csrf
 from django.shortcuts import redirect, render
+from django.core import serializers
 
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -21,7 +22,7 @@ from .models import Room
 from user.models import User
 
 
-OWNER_RIGHTS = {
+DEFAULT_ROOM_RIGHTS = {
 			"moder_can_add": True, 
 			"moder_can_remove": True,
 			"moder_can_move": True, 
@@ -31,13 +32,13 @@ OWNER_RIGHTS = {
 			"moder_can_use_chat": True,
 			"moder_can_kick": True, 
 			"guest_can_add": True, 
-			"guest_can_remove": True, 
-			"guest_can_move": True, 
-			"guest_can_playpause": True, 
-			"guest_can_seek": True, 
-			"guest_can_skip": True, 
+			"guest_can_remove": False, 
+			"guest_can_move": False, 
+			"guest_can_playpause": False, 
+			"guest_can_seek": False, 
+			"guest_can_skip": False, 
 			"guest_can_use_chat": True, 
-			"guest_can_kick": True,
+			"guest_can_kick": False,
 }
 
 
@@ -97,7 +98,7 @@ class CreateRoomAPIView(APIView):
 				guest_can_playpause=guest_can_playpause, 
 				guest_can_seek=guest_can_seek, 
 				guest_can_skip=guest_can_skip, 
-				guest_can_use_chat=guest_can_kick, 
+				guest_can_use_chat=guest_can_use_chat, 
 				guest_can_kick=guest_can_kick,
 			)
 			room.save()
@@ -113,9 +114,12 @@ class UpdateRoomAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class ListRoomAPIView(ListAPIView):
-	queryset = Room.objects.all()
-	serializer_class = RoomSerializer
+	def get(self, request, foramt=None):
+		queryset = Room.objects.all()
+		data = serializers.serialize('json', queryset)
+		return HttpResponse(data, content_type='application/json', status=status.HTTP_200_OK)
 
+	
 
 class Create(View):
 	def get(self, request, format=None):
@@ -126,6 +130,6 @@ class Create(View):
 
 		request.session["head_data"] = {"X-CSRFToken": session_key}
 
-		request.session["post_data"] = OWNER_RIGHTS
+		request.session["post_data"] = DEFAULT_ROOM_RIGHTS
 			
 		return redirect(f"http://127.0.0.1:8000/api/room/")

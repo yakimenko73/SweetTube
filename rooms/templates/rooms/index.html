@@ -12,8 +12,10 @@
 		<script src="https://www.youtube.com/iframe_api"></script>
 		<script async src="/static/scripts/room.js"></script>
 		{{ room_name|json_script:"room-name" }}
+		{{ room_permissions|json_script:"room-permissions" }}
 		{{ user_session_key|json_script:"user-sessionid" }}
 		{{ user_nickname|json_script:"user-nickname" }}
+		{{ user_status|json_script:"user-status" }}
 		{{ user_color|json_script:"user-color" }}
 	</head>
 	<body>
@@ -48,11 +50,11 @@
 		</header>
 		<main>
 			<div class="left_wrapper">
-				<div class="center">
+				<div class="center" id="center">
 					<div class="player">
 						<div class="view">
 							<div id="player"></div>
-							<div class="novideo visible">NO VIDEO</div>
+							<div class="novideo visible" id="novideo">NO VIDEO</div>
 						</div>
 					</div>
 					<div class="info">
@@ -132,7 +134,7 @@
 											</div>
 										</div>
 									</div>
-									<input type="text" id="input_userName">
+									<input type="text" id="input_userName" value="{{ user_nickname }}">
 								</li>
 							</ul>
 						</section>
@@ -145,7 +147,7 @@
 								</li>
 								<li>
 									<div class="desc">Room Name</div>
-									<input type="text" id="input_roomName">
+									<input type="text" id="input_roomName" value="Room #{{ room_id }}">
 								</li>
 							</ul>
 						</section>
