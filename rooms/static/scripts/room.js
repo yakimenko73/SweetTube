@@ -221,6 +221,7 @@ else {
 			case "new_video":
 				let  videoId = parseIdFromURL(data.videoURL);
 				videoPlayerHandler(videoId, flag="start");
+				addVideoInPlaylist();
 				break;
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
@@ -323,15 +324,12 @@ else {
 
 	document.querySelector("#search_result_wrapper").onclick = function() {
 		sendNewVideoInSocket();
-		addVideoInPlaylist();
-		
 	};
 	
 	document.querySelector('#search_input').onkeyup = function(e) {
 		if (e.keyCode == 13)
 		{
 			sendNewVideoInSocket();
-			addVideoInPlaylist();
 		}
 	};
 	
