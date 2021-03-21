@@ -19,7 +19,7 @@
 		{{ user_color|json_script:"user-color" }}
 	</head>
 	<body>
-		<header id="header">
+		<header class="header">
 			<div class="header_wrapper">
 				<div class="logo noselect">
 					<a style="text-decoration: none;" href="/">SweetTube</a>
@@ -38,18 +38,15 @@
 					<div class="user_popup_entry" id="btn_settings">Settings</div>
 				</div>
 			</div>
-			<div class="search_result_wrapper"></div>
-			<nav class="tabs noselect" id="main_nav">
-				<div class="nohide" t="playlist" id="btnplaylist">
-					Playlist
-					<div class="notify" val="0">0</div>
+			<div class="search_result_wrapper" style="display: none;" id=search_result_wrapper>
+				<div id="null" class="search_result">
+					<img id ="preview_img">
+					<div class="details">
+						<div class="title"></div>
+						<div class="channel"></div>
+					</div>
 				</div>
-				<div class="nohide tab_selected" t="chat" id="btnchat">
-					Chat
-					<div class="notify" val="0">0</div>
-				</div>
-				<div class="nohide" id="btnSettings">Settings</div>
-			</nav>
+			</div>
 		</header>
 		<main>
 			<div class="left_wrapper">
@@ -74,7 +71,7 @@
 						<div class="wrapper">
 							<div class="playlist tab" id="video_playlist">
 								<ul id="video_list"></ul>
-								<div class="noplaylist noselect visible">No upcoming Videos</div>
+								<div class="noplaylist noselect visible" id="noplaylist">No upcoming Videos</div>
 								<div class="edge"></div>
 							</div>
 
