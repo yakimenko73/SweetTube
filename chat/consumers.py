@@ -36,10 +36,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"color_user_in_list": self.color_user_in_list
 			})
 		})
-		self.r.hmset(f"player_{self.room_name}", {
-			"state": "play",
-			"current_time": "0"
-		})
+
+		if not self.r.hmget(f"player_{self.room_name}", "state"):
+			self.r.hmset(f"player_{self.room_name}", {
+				"state": "play",
+				"current_time": "0"
+			})
 
 		await self.channel_layer.group_send(
 			self.room_group_name,

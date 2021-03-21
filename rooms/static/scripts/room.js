@@ -15,7 +15,7 @@ if (localStorage.getItem(roomName) === '1') {
 	document.body.innerHTML = request.responseText;
 }
 else {
-	let  player;
+	var player;
 	const socket = new WebSocket(
 		'ws://' +
 		window.location.host +
@@ -209,9 +209,9 @@ else {
 				updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
 				break;
 			case "new_video":
-				let  videoId = parseIdFromURL(data.videoURL);
+				videoId = parseIdFromURL(data.videoURL);
 				videoPlayerHandler(videoId, flag="start");
-				addVideoInPlaylist();
+				// addVideoInPlaylist();
 				break;
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
@@ -313,23 +313,13 @@ else {
 	};
 
 	document.querySelector("#search_result_wrapper").onclick = function() {
-		deleteClass("search_result_wrapper", "visible");
-		document.querySelector('#search_input').value = '';
+		sendNewVideoInSocket();
 	};
 	
 	document.querySelector('#search_input').onkeyup = function(e) {
 		if (e.keyCode == 13)
 		{
-			let url = document.querySelector('#search_input').value;
-			socket.send(JSON.stringify({
-				'type': "new_video",
-				'userNickname': userNickname,
-				'videoURL': url,
-				'videoPreviewURL': info[3],
-				'videoTitle': info[1]
-			}));
-			deleteClass("search_result_wrapper", "visible");
-			document.querySelector('#search_input').value = '';
+			sendNewVideoInSocket();
 		}
 	};
 	
@@ -342,6 +332,25 @@ else {
 			changeClass("color_picker_popup", "color_picker_popup_visible");
 	};
 	
+	function addVideoInPlaylist() {
+		addDOMVideoInPlayList();
+		deleteClass("search_result_wrapper", "visible");
+		document.querySelector('#search_input').value = '';
+	};
+
+	function sendNewVideoInSocket() {
+		let url = document.querySelector('#search_input').value;
+		let info = getInfoAboutVideo(url);
+
+		socket.send(JSON.stringify({
+			'type': "new_video",
+			'userNickname': userNickname,
+			'videoURL': url,
+			'videoPreviewURL': info[3],
+			'videoTitle': info[1]
+		}));
+	};
+
 	function setEventForCheckboxes() {
 		// g - guest, m - moderator, o - owner
 		let listRoles = [ "g", "m", "o" ];
