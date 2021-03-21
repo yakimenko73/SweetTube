@@ -36,8 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"color_user_in_list": self.color_user_in_list
 			})
 		})
-
-		if not self.r.hmget(f"player_{self.room_name}", "state"):
+		if not self.r.hmget(f"player_{self.room_name}", "state")[0]:
 			self.r.hmset(f"player_{self.room_name}", {
 				"state": "play",
 				"current_time": "0"
@@ -132,10 +131,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		elif message_type == "get_player_config":
 			player_config = self.r.hmget(f"player_{self.room_name}", "state", "current_time")
 			await self.send(text_data=json.dumps({
-					'type': "set_player_config",
-					'state': player_config[0].decode("utf-8"),
-					'current_time': player_config[1].decode("utf-8")
-				}))
+				'type': "set_player_config",
+				'state': player_config[0].decode("utf-8"),
+				'current_time': player_config[1].decode("utf-8")
+			}))
 
 		elif message_type == "new_video":
 			user_nickname = text_data_json['userNickname']
