@@ -6,7 +6,7 @@ const userColor = JSON.parse(document.getElementById('user-color').textContent);
 if (localStorage.getItem(roomName) === '1') {
 	var request = new XMLHttpRequest();
 	request.open('POST', window.location, false);  // `false` makes the request synchronous
-	body = "alreadyInTheRoom";
+	let body = "alreadyInTheRoom";
 	request.send(body);
 	
 	document.head.innerHTML = request.responseText;
@@ -35,7 +35,7 @@ else {
 			"/api/youtube/playlist/", 
 			true
 		);
-		body = roomName;
+		let body = roomName;
 		request.send(body);
 	  };
 
@@ -45,8 +45,8 @@ else {
 	};
 
 	function onPlayerStateChange(event) {
-		clearTime = Math.round(event.target.getCurrentTime());
-		videoDuration = event.target.getDuration();
+		let clearTime = Math.round(event.target.getCurrentTime());
+		let videoDuration = event.target.getDuration();
 		switch (event.data) {
 			case 1:
 				if (clearTime == 0)
@@ -77,13 +77,20 @@ else {
 	socket.onmessage = function(e) {
 		const data = JSON.parse(e.data);
 		if (data.type === "visitors")
-			updateUserCounter(isIncrement=data.isIncrement, count=data.value);
-		else if (data.type === "system_message")
-			addMessageToChatArea(data.message)
-		else if (data.type === "update_user_list")
-		updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd)
-		else
-			addMessageToChatArea(data.message, data.color, data.author)
+			updateUserCounter(data.isIncrement, data.value);
+		else 
+		{
+			if (data.type === "system_message")
+				addMessageToChatArea(data.message);	
+			else 
+			{
+				if (data.type === "update_user_list")
+					updateUserList(data.userId, data.userNickname, data.userColor, data.isAdd);
+				else
+					addMessageToChatArea(data.message, data.color, data.author);
+			}
+
+		}
 	};
 
 	socket.onopen = function(e) {
@@ -95,7 +102,8 @@ else {
 	};
 
 	setEventForCheckboxes();
-
+	loadButtons();
+	
 	window.onbeforeunload = function() {
 		socket.close();
 	};
@@ -128,36 +136,18 @@ else {
 				false
 			);
 			request.send();
-			response = JSON.parse(request.response)
-			title = response.title
-			author = response.author_name
-			preview = response.thumbnail_url
+			let response = JSON.parse(request.response);
+			let title = response.title;
+			let author = response.author_name;
+			let preview = response.thumbnail_url;
 			alert(request.response);
 			urlInputDom.value = '';
 		};
 	};
 	
-	document.querySelector('#btnPlaylist').onclick = function() {
-		clickPlaylist();
-	};
-		
-	document.querySelector('#btnChat').onclick = function() {
-		clickChat();
-	};
-		
-	document.querySelector('#btnSettings').onclick = function() {
-		clickSetting();
-	};
-		
-	document.querySelector('#btnCloseOverlay').onclick = function() {
-		clickCloseSettings();
-	};
-		
-	document.querySelector('#overlay').onclick = function() {
-		clickCloseSettings();
-	};
-	
-	document.querySelector('#pick_u_color').onclick = function() {
+	window.addEventListener('resize', event => {loadButtons();})
+
+	document.querySelector('#color_picker').onclick = function() {
 		if(colorPickerIsVisible())
 			deleteClass("color_picker_popup", "color_picker_popup_visible");
 		else
@@ -281,7 +271,7 @@ else {
 	function deleteClass(id, style) {
 		let elementTab = document.getElementById(id);
 		if (elementTab.classList.contains(style))
-		elementTab.classList.remove(style);
+			elementTab.classList.remove(style);
 	};
 	
 	function clickCloseSettings() {
@@ -344,4 +334,73 @@ else {
 		else
 			changeClass(id, "checked");
 	};
+
+	function addButtons(id_parent_element) {
+		if(buttonsExistsInParent(id_parent_element))
+			return;
+
+		let nav = 
+		`<nav class="tabs noselect" id="main_nav">
+			<div class="nohide" t="playlist" id="btnPlaylist">
+				Playlist
+				<div class="notify" val="0">0</div>
+			</div>
+			<div class="nohide tab_selected" t="chat" id="btnChat">
+				Chat
+				<div class="notify" val="0">0</div>
+			</div>
+			<div class="nohide" id="btnSettings">Settings</div>
+		</nav>`;
+
+		if(buttonsExists())
+			document.getElementById("main_nav").remove();
+
+		document.querySelector(`.${id_parent_element}`).insertAdjacentHTML("beforeend", nav);
+	};
+	
+	function buttonsExistsInParent(id_parent_element) {
+		if (document.getElementById("main_nav") == id_parent_element)
+			return true;
+		return false; 
+	};
+	
+	function loadButtons() {
+		let width = document.documentElement.clientWidth;
+		if (width > 977)
+			addButtons("header");
+			
+		else
+			addButtons("center");
+
+		setEventsForButtons();
+	};
+
+	function buttonsExists() {
+		if (document.getElementById("main_nav") == null )
+			return false;
+		return true;
+	}
+
+	function setEventsForButtons() {
+		document.querySelector('#btnPlaylist').onclick = function() {
+			clickPlaylist();
+		};
+			
+		document.querySelector('#btnChat').onclick = function() {
+			clickChat();
+		};
+			
+		document.querySelector('#btnSettings').onclick = function() {
+			clickSetting();
+		};
+			
+		document.querySelector('#btnCloseOverlay').onclick = function() {
+			clickCloseSettings();
+		};
+			
+		document.querySelector('#overlay').onclick = function() {
+			clickCloseSettings();
+		};
+	}
 };
+
