@@ -322,25 +322,16 @@ else {
 	};
 
 	document.querySelector("#search_result_wrapper").onclick = function() {
-		addDOMVideoInPlayList();
-		deleteClass("search_result_wrapper", "visible");
-		document.querySelector('#search_input').value = '';
+		sendNewVideoInSocket();
+		addVideoInPlaylist();
+		
 	};
 	
 	document.querySelector('#search_input').onkeyup = function(e) {
 		if (e.keyCode == 13)
 		{
-			addDOMVideoInPlayList();
-			deleteClass("search_result_wrapper", "visible");
-			document.querySelector('#search_input').value = '';
-			// sharing video
-			socket.send(JSON.stringify({
-				'type': "new_video",
-				'userNickname': userNickname,
-				'videoURL': url,
-				'videoPreviewURL': info[3],
-				'videoTitle': info[1]
-			}));
+			sendNewVideoInSocket();
+			addVideoInPlaylist();
 		}
 	};
 	
@@ -353,6 +344,25 @@ else {
 			changeClass("color_picker_popup", "color_picker_popup_visible");
 	};
 	
+	function addVideoInPlaylist() {
+		addDOMVideoInPlayList();
+		deleteClass("search_result_wrapper", "visible");
+		document.querySelector('#search_input').value = '';
+	}
+
+	function sendNewVideoInSocket() {
+		let url = document.querySelector('#search_input').value;
+		let info = getInfoAboutVideo(url);
+
+		socket.send(JSON.stringify({
+			'type': "new_video",
+			'userNickname': userNickname,
+			'videoURL': url,
+			'videoPreviewURL': info[3],
+			'videoTitle': info[1]
+		}));
+	}
+
 	function setEventForCheckboxes() {
 		// g - guest, m - moderator, o - owner
 		let listRoles = [ "g", "m", "o" ];
