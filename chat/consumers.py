@@ -144,7 +144,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			watched_video = self.r.hincrby("temp_watched_video", self.room_name, 1)
 			if watched_video == 1:
 				self.r.ltrim(f"videos_{self.room_name}", 1, -1)
-				self.r.expire(f"temp_watched_video", 60)
+				self.r.expire(f"temp_watched_video", 2)
 				await self.channel_layer.group_send(
 					self.room_group_name,
 					{"type": "next_video"}

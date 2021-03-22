@@ -224,7 +224,7 @@ else {
 						var currentPlayerState = player.getPlayerState();
 					}
 					catch (e) {
-						var currentPlayerState = 0;
+						var currentPlayerState = 1;
 					}
 					if (currentPlayerState != 0)
 						addVideoInPlaylist(data.userNickname, 
@@ -236,11 +236,6 @@ else {
 						player.loadVideoById(videoId, 0); 
 				}
 				else {
-					socket.send(JSON.stringify({
-						'type': "update_player_state",
-						'state': "play",
-						'time': "0"
-					}));
 					videoPlayerHandler(videoId=videoId, flag="start");
 				}
 				break;
@@ -375,11 +370,12 @@ else {
 		deleteClass("noplaylist", "visible");
 		addDOMVideoInPlayList(user, videoId, videoTitle, videoPreview);
 		deleteClass("search_result_wrapper", "visible");
-		document.querySelector('#search_input').value = '';
 	};
 
 	function sendNewVideoInSocket() {
-		let url = document.querySelector('#search_input').value;
+		let searchInputDOM = document.querySelector('#search_input');
+		let url = searchInputDOM.value;
+		searchInputDOM.value = '';
 		let info = getInfoAboutVideo(url);
 
 		socket.send(JSON.stringify({
