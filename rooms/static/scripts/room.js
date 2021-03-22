@@ -16,6 +16,7 @@ if (localStorage.getItem(roomName) === '1') {
 }
 else {
 	var player;
+	var updatePlayerStateInterval;
 	const socket = new WebSocket(
 		'ws://' +
 		window.location.host +
@@ -24,18 +25,14 @@ else {
 		'/'
 	);
 
-	function onYouTubeIframeAPIReady() {
-		console.log("YouTube iframe ready");
-	};
-
 	function onPlayerReady(event) {
 		event.target.mute();
 		socket.send(JSON.stringify({'type': "get_player_config"}));
-		setInterval(() => 
+		updatePlayerStateInterval = setInterval(() => 
 			socket.send(JSON.stringify({
 				'type': "update_player_state",
-				'state': videoPlayerHandler(videoId=null, flag="getCurrentState"),
-				'time': videoPlayerHandler(videoId=null, flag="getCurrentTime")
+				'state': player.getPlayerState(),
+				'time': player.getCurrentTime()
 			})), 
 			1000
 		)
@@ -44,13 +41,9 @@ else {
 	function onPlayerStateChange(event) {
 		let currentTime = event.target.getCurrentTime();
 		let videoDuration = event.target.getDuration();
-		console.log(event.data)
 		switch (event.data) {
 			case 1: // started/playing
-				if (currentTime == 0)
-					console.log('started ' + currentTime);
-				else {
-					console.log('playing ' + currentTime);
+				if (currentTime != 0) {
 					if (localStorage.getItem("isCallingPlayPauseVideo") != "1") {
 						switch(userStatus) {
 							case "HO":
@@ -58,7 +51,7 @@ else {
 									'type': "play/pause",
 									'sender': userSessionid,
 									'side': "play", 
-									'time': event.target.getCurrentTime()
+									'time': currentTime
 								}));
 								break;
 							case "MO":
@@ -71,7 +64,7 @@ else {
 										'type': "play/pause",
 										'sender': userSessionid,
 										'side': "play",
-										'time': event.target.getCurrentTime()
+										'time': currentTime
 									}));
 								break;
 							case "GU":
@@ -84,7 +77,7 @@ else {
 										'type': "play/pause",
 										'sender': userSessionid,
 										'side': "play",
-										'time': event.target.getCurrentTime()
+										'time': currentTime
 									}));
 								break;
 						};
@@ -94,7 +87,6 @@ else {
 				};
 				break;
 			case 2: // pause
-				console.log("paused " + currentTime);
 				if (videoDuration - currentTime != 0) {
 					if (localStorage.getItem("isCallingPlayPauseVideo") != "1") {
 						switch(userStatus) {
@@ -103,7 +95,7 @@ else {
 									'type': "play/pause",
 									'sender': userSessionid,
 									'side': "pause",
-									'time': event.target.getCurrentTime()
+									'time': currentTime
 								}));
 								break;
 							case "MO":
@@ -116,7 +108,7 @@ else {
 										'type': "play/pause",
 										'sender': userSessionid,
 										'side': "pause",
-										'time': event.target.getCurrentTime()
+										'time': currentTime
 									}));
 								break;
 							case "GU":
@@ -129,7 +121,7 @@ else {
 										'type': "play/pause",
 										'sender': userSessionid,
 										'side': "pause",
-										'time': event.target.getCurrentTime()
+										'time': currentTime
 									}));
 								break; 
 						};
@@ -139,14 +131,26 @@ else {
 				};
 				break;
 			case 0: // ended
-				console.log('ended ' + currentTime);
-				break;
-			case 3: // buffering
-				console.log("buffering " + currentTime);
+				socket.send(JSON.stringify({'type': "video_ended"}));
 				break;
 			case -1: // did not start
-				console.log("did not start " + currentTime);
 				localStorage.removeItem("isCallingPlayPauseVideo");
+				break;
+		};
+	};
+
+	function onPlayerError(event) {
+		alert(event.data);
+		switch (event.data) {
+			case 2: // invalid id
+				break;
+			case 5: // player related error
+				break;
+			case 100: // video removed or marked as private
+				break;
+			case 101: // no embedding
+				break;
+			case 150: // also no embedding
 				break;
 		};
 	};
@@ -154,7 +158,8 @@ else {
 	function videoPlayerHandler(videoId=null, flag=null, seconds=null) {
 		switch(flag) {
 			case "start":
-				document.getElementById("novideo").className = "novideo";
+				localStorage.setItem("isCallingPlayPauseVideo", 1);
+				deleteClass("novideo", "visible");
 				player = new YT.Player('player', {
 					height: '360',
 					width: '640',
@@ -162,6 +167,7 @@ else {
 					host: "https://www.youtube-nocookie.com",
 					playerVars: {
 						autoplay: 1,
+						start: 0,
 						controls: 1,
 						disablekb: 1,
 						enablejsapi: 1,
@@ -171,7 +177,8 @@ else {
 					},
 					events: {
 						'onReady': onPlayerReady,
-						'onStateChange': onPlayerStateChange
+						'onStateChange': onPlayerStateChange,
+						'onError': onPlayerError
 					}
 				});
 				break;
@@ -185,10 +192,6 @@ else {
 				player.seekTo(seconds);
 				player.playVideo();
 				break;
-			case "getCurrentTime":
-				return player.getCurrentTime();
-			case "getCurrentState":
-				return player.getPlayerState();
 		};
 	};
 
@@ -216,8 +219,39 @@ else {
 				break;
 			case "new_video":
 				videoId = parseIdFromURL(data.videoURL);
-				videoPlayerHandler(videoId, flag="start");
-				// addVideoInPlaylist();
+				if (player != undefined) {
+					try {
+						var currentPlayerState = player.getPlayerState();
+					}
+					catch (e) {
+						var currentPlayerState = 0;
+					}
+					if (currentPlayerState != 0)
+						addVideoInPlaylist(data.userNickname, 
+							videoId, 
+							data.videoTitle, 
+							data.videoPreviewURL
+						)
+					else
+						player.loadVideoById(videoId, 0); 
+				}
+				else {
+					socket.send(JSON.stringify({
+						'type': "update_player_state",
+						'state': "play",
+						'time': "0"
+					}));
+					videoPlayerHandler(videoId=videoId, flag="start");
+				}
+				break;
+			case "next_video":
+				let videoList = document.getElementById("video_list");
+				let nextVideo = videoList.firstChild;
+				if (nextVideo) {
+					let nextVideoId = nextVideo.id.split('_!')[0];
+					nextVideo.remove();
+					player.loadVideoById(nextVideoId, 0);
+				}
 				break;
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
@@ -246,6 +280,8 @@ else {
 	window.onunload = function() {
 		socket.close();
 	};
+
+	window.addEventListener('resize', event => {loadButtons()});
 
 	loadButtons();
 	setEventForCheckboxes();
@@ -284,7 +320,6 @@ else {
 
 			setInfoInSearchResult(info[0], info[2], info[1], info[3]);
 			changeClass("search_result_wrapper", "visible");
-			deleteClass("noplaylist", "visible");
 			document.querySelector(".search_result_wrapper").style = "display: block";
 		}
 		else
@@ -328,8 +363,6 @@ else {
 			sendNewVideoInSocket();
 		}
 	};
-	
-	window.addEventListener('resize', event => {loadButtons()});
 
 	document.querySelector('#color_picker').onclick = function() {
 		if(colorPickerIsVisible())
@@ -338,8 +371,9 @@ else {
 			changeClass("color_picker_popup", "color_picker_popup_visible");
 	};
 	
-	function addVideoInPlaylist() {
-		addDOMVideoInPlayList();
+	function addVideoInPlaylist(user, videoId, videoTitle, videoPreview) {
+		deleteClass("noplaylist", "visible");
+		addDOMVideoInPlayList(user, videoId, videoTitle, videoPreview);
 		deleteClass("search_result_wrapper", "visible");
 		document.querySelector('#search_input').value = '';
 	};
@@ -601,21 +635,6 @@ else {
 		};
 	};
 	
-	function getVideoId(url) {
-		let regexp = /v=\w*$/;
-	
-		try {
-			if (url.match(regexp)[0] == null)
-				return null;
-		} catch (error) {
-			return null;
-		}
-		
-		let id = url.match(regexp)[0];
-	
-		;return id.replace(/v=/, '');
-	};
-	
 	function setInfoInSearchResult(id, channel, title, preview) {
 		document.querySelector(".search_result").id = id;
 		document.querySelector("#preview_img").src = preview;
@@ -633,7 +652,7 @@ else {
 		let response = JSON.parse(request.response);
 		
 		let info = [];
-		info.push(getVideoId(url)); 
+		info.push(parseIdFromURL(url)); 
 		info.push(response.title);
 		info.push(response.author_name);
 		info.push(response.thumbnail_url);
@@ -656,18 +675,16 @@ else {
 		}
 	};
 	
-	function addDOMVideoInPlayList() {
-		const url = document.querySelector('#search_input').value;
-		let userAdded = userNickname;
-		let info = getInfoAboutVideo(url);
+	function addDOMVideoInPlayList(user, videoId, videoTitle, videoPreview) {
+		let userAdded = user;
 		let ul_videoList = document.querySelector("#video_list");
 	
 		let img = document.createElement("img");
-		img.src = info[3];
+		img.src = videoPreview;
 	
 		let div_title = document.createElement("div");
 		div_title.className = "title";
-		div_title.textContent = info[1];
+		div_title.textContent = videoTitle;
 	
 		let div_info = document.createElement("div");
 		div_info.className = "info";
@@ -683,7 +700,7 @@ else {
 		div_decs.appendChild(div_info);
 	
 		let li = document.createElement("li");
-		li.id = `${info[0]}_!${new Date().toUTCString()}!`;
+		li.id = `${videoId}_!${new Date().toUTCString()}!`;
 		li.appendChild(div_thumbail);
 		li.appendChild(div_decs);
 		

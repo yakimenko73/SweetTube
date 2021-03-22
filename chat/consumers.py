@@ -123,10 +123,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		message_type = text_data_json["type"]
 
 		if message_type == "update_player_state":
-			self.r.hmset(f"player_{self.room_name}", {
-				"state": text_data_json["state"],
-				"current_time": text_data_json["time"]
-			})
+			try:
+				self.r.hmset(f"player_{self.room_name}", {
+					"state": text_data_json["state"],
+					"current_time": text_data_json["time"]
+				})
+			except KeyError as ex:
+				print(ex)
 
 		elif message_type == "get_player_config":
 			player_config = self.r.hmget(f"player_{self.room_name}", "state", "current_time")
@@ -135,6 +138,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'state': player_config[0].decode("utf-8"),
 				'current_time': player_config[1].decode("utf-8")
 			}))
+
+		elif message_type == "video_ended":
+			number_users_in_room = self.r.hget("user_counters", self.room_name)
+			watched_video = self.r.hincrby("temp_watched_video", self.room_name, 1)
+			if watched_video == 1:
+				self.r.ltrim(f"videos_{self.room_name}", 1, -1)
+				self.r.expire(f"temp_watched_video", 60)
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{"type": "next_video"}
+				)
 
 		elif message_type == "new_video":
 			user_nickname = text_data_json['userNickname']
@@ -225,6 +239,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'videoPreviewURL': event['videoPreviewURL'],
 			'videoTitle': event['videoTitle']
 		}))
+
+	async def next_video(self, event):
+		''' Receive video info from room group '''
+		await self.send(text_data=json.dumps({'type': "next_video"}))
 	
 	async def play_pause_video(self, event):
 		''' Sends a command to play/pause the video '''
