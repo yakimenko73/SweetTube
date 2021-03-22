@@ -44,6 +44,7 @@ else {
 	function onPlayerStateChange(event) {
 		let currentTime = event.target.getCurrentTime();
 		let videoDuration = event.target.getDuration();
+		console.log(event.data)
 		switch (event.data) {
 			case 1: // started/playing
 				if (currentTime == 0)
@@ -63,7 +64,7 @@ else {
 							case "MO":
 								if (!roomPermissions.moder_can_playpause) {
 									localStorage.setItem("isCallingPlayPauseVideo", 1);
-									event.target.pauseVideo();
+									socket.send(JSON.stringify({'type': "get_player_config"}));
 								}
 								else 
 									socket.send(JSON.stringify({
@@ -76,7 +77,7 @@ else {
 							case "GU":
 								if (!roomPermissions.guest_can_playpause) {
 									localStorage.setItem("isCallingPlayPauseVideo", 1);
-									event.target.pauseVideo();
+									socket.send(JSON.stringify({'type': "get_player_config"}));
 								}
 								else 
 									socket.send(JSON.stringify({
@@ -89,7 +90,7 @@ else {
 						};
 					}
 					else
-						localStorage.removeItem("isCallingPlayPauseVideo"); 
+						localStorage.removeItem("isCallingPlayPauseVideo");
 				};
 				break;
 			case 2: // pause
@@ -142,6 +143,11 @@ else {
 				break;
 			case 3: // buffering
 				console.log("buffering " + currentTime);
+				break;
+			case -1: // did not start
+				console.log("did not start " + currentTime);
+				localStorage.removeItem("isCallingPlayPauseVideo");
+				break;
 		};
 	};
 
