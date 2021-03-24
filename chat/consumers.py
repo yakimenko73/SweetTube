@@ -7,7 +7,6 @@ from channels.db import database_sync_to_async
 from asgiref.sync import sync_to_async
 
 from room.models import Room
-from youtubeAPI.models import Playlist, Video
 from user.models import User, Session
 from user.serializers import UserSerializer, SessionSerializer, UserSessionSerializer
 
