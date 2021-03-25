@@ -233,7 +233,7 @@ else {
 							data.videoPreviewURL
 						)
 					else
-						player.loadVideoById(videoId, 0); 
+						player.loadVideoById(videoId, 0);
 				}
 				else {
 					videoPlayerHandler(videoId=videoId, flag="start");
@@ -280,6 +280,7 @@ else {
 
 	loadButtons();
 	setEventForCheckboxes();
+	checkPermissions();
 
 	document.querySelector('#chat_input').onkeyup = function(e) {
 		if (e.keyCode === 13) { // enter, return
@@ -707,7 +708,7 @@ else {
 
 	function deleteDOMVideoInPlayList(videoDOM) {
 		videoDOM.remove();
-	}
+	};
 
 	function checkingMessageForErrors(message) {
 		let regexp = /^\s*$/;
@@ -731,7 +732,7 @@ else {
 		if(ampersandPosition != -1)
 			id = id.substring(0, ampersandPosition);
 		return id;
-	}
+	};
 
 	function getPlaylistOptionHTML() {
 		// let html = 
@@ -748,21 +749,21 @@ else {
 			<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
 		</div`
 		return html
-	}
+	};
 
 	function addPlaylistOption(videoDOM) {
 		videoDOM.insertAdjacentHTML("beforeend", getPlaylistOptionHTML());
 		videoDOM.lastElementChild.lastElementChild.addEventListener("click", function(){deleteDOMVideoInPlayList(videoDOM)});
-	}
+	};
 
 	function deletePlaylistOption(videoDOM) {
 		videoDOM.removeChild(videoDOM.lastElementChild);
-	}
+	};
 
 	function addAllEventForVideoInPlaylist(videoDOM){
 		videoDOM.addEventListener("mouseenter", function(){addPlaylistOption(videoDOM)});
 		videoDOM.addEventListener("mouseleave", function(){deletePlaylistOption(videoDOM)});
-	}
+	};
 
 	function getNumberVideoInPlaylist(videoDOM) {
 		let playlist = videoDOM.parentNode;
@@ -774,5 +775,16 @@ else {
 				return number;
 			}
 		}
-	}
+	};
+
+	function checkPermissions() {
+		if (userStatus != "HO") {
+			let permissionToAddVideo = userStatus == "MO" ? roomPermissions.moder_can_add : roomPermissions.guest_can_add;
+			let permissionToUseChat = userStatus == "MO" ? roomPermissions.moder_can_use_chat : roomPermissions.guest_can_use_chat;
+			if (!permissionToAddVideo)
+				document.getElementById("search_input").disabled = 1;
+			if (!permissionToUseChat)
+				document.getElementById("chat_input").disabled = 1;
+		};
+	};
 };
