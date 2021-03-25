@@ -16,7 +16,6 @@ if (localStorage.getItem(roomName) === '1') {
 }
 else {
 	var player;
-	var updatePlayerStateInterval;
 	const socket = new WebSocket(
 		'ws://' +
 		window.location.host +
@@ -28,7 +27,7 @@ else {
 	function onPlayerReady(event) {
 		event.target.mute();
 		socket.send(JSON.stringify({'type': "get_player_config"}));
-		updatePlayerStateInterval = setInterval(() => 
+		setInterval(() => 
 			socket.send(JSON.stringify({
 				'type': "update_player_state",
 				'state': player.getPlayerState(),
@@ -276,11 +275,11 @@ else {
 		socket.close();
 	};
 
-	window.addEventListener('resize', event => {loadButtons()});
-
 	loadButtons();
 	setEventForCheckboxes();
 	checkPermissions();
+
+	window.addEventListener('resize', event => {loadButtons()});
 
 	document.querySelector('#chat_input').onkeyup = function(e) {
 		if (e.keyCode === 13) { // enter, return

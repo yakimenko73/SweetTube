@@ -44,7 +44,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		self.r.persist(f"playlist_{self.room_name}")
 		self.r.persist(f"player_{self.room_name}")
 		self.r.persist(f"messages_{self.room_name}")
-		self.r.persist(f"visitors_{self.room_name}")
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
