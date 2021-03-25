@@ -303,7 +303,7 @@ else {
 
 	document.querySelector('#search_input').oninput = function() {
 		const url = document.querySelector('#search_input').value;
-		let regexp = /^https:\/\/www\.youtube\.com\/watch\?v=\w{11}$/;
+		let regexp = /^https:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/).*$/;
 
 		if (checkValidUrl(url, regexp))
 		{
@@ -677,6 +677,7 @@ else {
 	
 		let img = document.createElement("img");
 		img.src = videoPreview;
+		img.height = 94;
 	
 		let div_title = document.createElement("div");
 		div_title.className = "title";
@@ -696,13 +697,18 @@ else {
 		div_decs.appendChild(div_info);
 	
 		let li = document.createElement("li");
-		li.id = `${videoId}_!${new Date().toUTCString()}!`;
+		li.id = videoId;
 		li.appendChild(div_thumbail);
 		li.appendChild(div_decs);
-		
+		addAllEventForVideoInPlaylist(li)
+
 		ul_videoList.appendChild(li);
 	};
-	
+
+	function deleteDOMVideoInPlayList(videoDOM) {
+		videoDOM.remove();
+	}
+
 	function checkingMessageForErrors(message) {
 		let regexp = /^\s*$/;
 		if (message == null)
@@ -716,7 +722,7 @@ else {
 		}
 		
 	};
-	
+
 	function parseIdFromURL(url) {
 		let id = url.split('v=')[1];
 		if (!id)
@@ -725,5 +731,48 @@ else {
 		if(ampersandPosition != -1)
 			id = id.substring(0, ampersandPosition);
 		return id;
-	};
+	}
+
+	function getPlaylistOptionHTML() {
+		// let html = 
+		// `<div class='playlist_video_options' style= 'display: block'>
+		// 	<div class= 'playlist_options_left' style= 'display: block'>
+		// 		<div class = 'playlist_btn_up playlist_btn_arrow'></div>
+		// 		<div class = 'playlist_btn_down playlist_btn_arrow'></div>
+		// 	</div>
+		// 	<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
+		// </div`
+
+		let html = 
+		`<div class='playlist_video_options' style= 'display: block'>
+			<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
+		</div`
+		return html
+	}
+
+	function addPlaylistOption(videoDOM) {
+		videoDOM.insertAdjacentHTML("beforeend", getPlaylistOptionHTML());
+		videoDOM.lastElementChild.lastElementChild.addEventListener("click", function(){deleteDOMVideoInPlayList(videoDOM)});
+	}
+
+	function deletePlaylistOption(videoDOM) {
+		videoDOM.removeChild(videoDOM.lastElementChild);
+	}
+
+	function addAllEventForVideoInPlaylist(videoDOM){
+		videoDOM.addEventListener("mouseenter", function(){addPlaylistOption(videoDOM)});
+		videoDOM.addEventListener("mouseleave", function(){deletePlaylistOption(videoDOM)});
+	}
+
+	function getNumberVideoInPlaylist(videoDOM) {
+		let playlist = videoDOM.parentNode;
+		let number = 0;
+		for(let i = 0; i < playlist.children.length; i++) {
+			number++;
+
+			if(playlist.children[i] === videoDOM) {
+				return number;
+			}
+		}
+	}
 };
