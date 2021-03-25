@@ -41,6 +41,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				"current_time": "0"
 			})
 
+		self.r.persist(f"playlist_{self.room_name}")
+		self.r.persist(f"player_{self.room_name}")
+		self.r.persist(f"messages_{self.room_name}")
+		self.r.persist(f"visitors_{self.room_name}")
+
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
@@ -75,7 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'message': message_dict["message"],
 			}))
 
-		list_videos = self.r.lrange(f"videos_{self.room_name}", 0, -1)
+		list_videos = self.r.lrange(f"playlist_{self.room_name}", 0, -1)
 		for video in list_videos:
 			video_dict = eval(video)
 			await self.send(text_data=json.dumps({
@@ -88,6 +93,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		self.user_counter = self.r.hincrby("user_counters", self.room_name, -1)
+		if self.user_counter == 0:
+			self.r.expire(f"playlist_{self.room_name}", 1 << 12) # 2^12 seconds
+			self.r.expire(f"player_{self.room_name}", 1 << 12)
+			self.r.expire(f"messages_{self.room_name}", 1 << 12)
 		self.r.hdel(f"visitors_{self.room_name}", self.session_key)
 		
 		await self.channel_layer.group_send(
@@ -142,7 +151,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			number_users_in_room = self.r.hget("user_counters", self.room_name)
 			watched_video = self.r.hincrby("temp_watched_video", self.room_name, 1)
 			if watched_video == 1:
-				self.r.ltrim(f"videos_{self.room_name}", 1, -1)
+				self.r.ltrim(f"playlist_{self.room_name}", 1, -1)
 				self.r.expire(f"temp_watched_video", 2)
 				await self.channel_layer.group_send(
 					self.room_group_name,
@@ -164,7 +173,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					'videoTitle': video_title,
 				}
 			)
-			self.r.rpush(f"videos_{self.room_name}", str({
+			self.r.rpush(f"playlist_{self.room_name}", str({
 					"userNickname": user_nickname,
 					"videoURL": video_url,
 					"videoPreviewURL": video_preview_url,

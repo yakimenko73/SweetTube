@@ -546,7 +546,7 @@ else {
 		if(checkbox.classList.contains("color_picker_popup_visible"))
 			return true;
 		return false;
-	} ;
+	};
 	
 	function changeCheckbox(id, checked=null) {
 		if (checked != null)
