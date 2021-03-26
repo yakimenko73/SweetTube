@@ -86,7 +86,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'type': "new_video",
 				'userNickname': video_dict["userNickname"],
 				'videoURL':  video_dict["videoURL"],
-				'videoPreviewURL':  video_dict["videoPreviewURL"],
 				'videoTitle':  video_dict["videoTitle"],
 			}))
 
@@ -160,7 +159,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		elif message_type == "new_video":
 			user_nickname = text_data_json['userNickname']
 			video_url = text_data_json['videoURL']
-			video_preview_url = text_data_json['videoPreviewURL']
 			video_title = text_data_json['videoTitle']
 			await self.channel_layer.group_send(
 				self.room_group_name,
@@ -168,14 +166,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					'type': message_type,
 					'userNickname': user_nickname,
 					'videoURL': video_url,
-					'videoPreviewURL': video_preview_url,
-					'videoTitle': video_title,
+					'videoTitle': video_title
 				}
 			)
 			self.r.rpush(f"playlist_{self.room_name}", str({
 					"userNickname": user_nickname,
 					"videoURL": video_url,
-					"videoPreviewURL": video_preview_url,
 					"videoTitle": video_title
 				}))
 
@@ -243,7 +239,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'type': "new_video",
 			'userNickname': event['userNickname'],
 			'videoURL': event['videoURL'],
-			'videoPreviewURL': event['videoPreviewURL'],
 			'videoTitle': event['videoTitle']
 		}))
 

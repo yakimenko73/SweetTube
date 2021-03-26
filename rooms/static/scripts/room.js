@@ -228,8 +228,7 @@ else {
 					if (currentPlayerState != 0)
 						addVideoInPlaylist(data.userNickname, 
 							videoId, 
-							data.videoTitle, 
-							data.videoPreviewURL
+							data.videoTitle
 						)
 					else
 						player.loadVideoById(videoId, 0);
@@ -313,7 +312,7 @@ else {
 			if(info.some(existUndefined))
 				return;
 
-			setInfoInSearchResult(info[0], info[2], info[1], info[3]);
+			setInfoInSearchResult(info[0], info[2], info[1]);
 			changeClass("search_result_wrapper", "visible");
 			document.querySelector(".search_result_wrapper").style = "display: block";
 		}
@@ -366,9 +365,9 @@ else {
 			changeClass("color_picker_popup", "color_picker_popup_visible");
 	};
 	
-	function addVideoInPlaylist(user, videoId, videoTitle, videoPreview) {
+	function addVideoInPlaylist(user, videoId, videoTitle) {
 		deleteClass("noplaylist", "visible");
-		addDOMVideoInPlayList(user, videoId, videoTitle, videoPreview);
+		addDOMVideoInPlayList(user, videoId, videoTitle);
 		deleteClass("search_result_wrapper", "visible");
 	};
 
@@ -382,7 +381,6 @@ else {
 			'type': "new_video",
 			'userNickname': userNickname,
 			'videoURL': url,
-			'videoPreviewURL': info[3],
 			'videoTitle': info[1]
 		}));
 	};
@@ -633,7 +631,7 @@ else {
 	
 	function setInfoInSearchResult(id, channel, title, preview) {
 		document.querySelector(".search_result").id = id;
-		document.querySelector("#preview_img").src = preview;
+		document.querySelector("#preview_img").src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;;
 		document.querySelector(".title").textContent = title;
 		document.querySelector(".channel").textContent = channel;
 	};
@@ -651,12 +649,10 @@ else {
 		info.push(parseIdFromURL(url)); 
 		info.push(response.title);
 		info.push(response.author_name);
-		info.push(response.thumbnail_url);
 		
 		// info[0] - id
 		// info[1] - title
 		// info[2] - channel
-		// info[3] - preview
 		return info;
 	};
 	
@@ -671,12 +667,12 @@ else {
 		}
 	};
 	
-	function addDOMVideoInPlayList(user, videoId, videoTitle, videoPreview) {
+	function addDOMVideoInPlayList(user, videoId, videoTitle) {
 		let userAdded = user;
 		let ul_videoList = document.querySelector("#video_list");
 	
 		let img = document.createElement("img");
-		img.src = videoPreview;
+		img.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 		img.height = 94;
 	
 		let div_title = document.createElement("div");
