@@ -256,10 +256,14 @@ else {
 				};
 				break;
 			case "delete_video":
+				let playlist = document.getElementById("video_list");
 				if (data.sender != userSessionid) {
-					let playlist = document.getElementById("video_list");
 					let videoDOM = playlist.children[data.videoIndex-1];
 					videoDOM.remove(); 
+				};
+				if (!playlist.children.length) {
+					let noPlaylistDOM = document.getElementById("noplaylist");
+					noPlaylistDOM.className += " visible";
 				};
 				break;
 			case "play/pause":
@@ -778,8 +782,11 @@ else {
 	};
 
 	function addAllEventForVideoInPlaylist(videoDOM){
-		videoDOM.addEventListener("mouseenter", function(){addPlaylistOption(videoDOM)});
-		videoDOM.addEventListener("mouseleave", function(){deletePlaylistOption(videoDOM)});
+		let permissionToRemoveVideo = userStatus == "MO" ? roomPermissions.moder_can_remove : roomPermissions.guest_can_remove;
+		if (permissionToRemoveVideo || userStatus == "HO") {
+			videoDOM.addEventListener("mouseenter", function(){addPlaylistOption(videoDOM)});
+			videoDOM.addEventListener("mouseleave", function(){deletePlaylistOption(videoDOM)});
+		};
 	};
 
 	function getNumberVideoInPlaylist(videoDOM) {
