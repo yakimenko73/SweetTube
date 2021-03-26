@@ -174,6 +174,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"videoURL": video_url,
 					"videoTitle": video_title
 				}))
+		
+		elif message_type == "delete_video":
+			video_index = text_data_json['videoIndex']
+			await self.channel_layer.group_send(
+				self.room_group_name,
+				{
+					'type': message_type,
+					'videoIndex': video_index,
+					'sender': text_data_json['sender']
+				}
+			)
+			self.r.lset(f"playlist_{self.room_name}", video_index, "DELETED")
+			self.r.lrem(f"playlist_{self.room_name}", 1, "DELETED")
 
 		elif message_type == "play/pause":
 			await self.channel_layer.group_send(
@@ -240,6 +253,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'userNickname': event['userNickname'],
 			'videoURL': event['videoURL'],
 			'videoTitle': event['videoTitle']
+		}))
+
+	async def delete_video(self, event):
+		''' Receive video delete message from room group '''
+		await self.send(text_data=json.dumps({
+			'type': "delete_video",
+			'videoIndex': event['videoIndex'],
+			'sender': event['sender']
 		}))
 
 	async def next_video(self, event):

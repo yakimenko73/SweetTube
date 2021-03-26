@@ -246,6 +246,13 @@ else {
 					player.loadVideoById(nextVideoId, 0);
 				}
 				break;
+			case "delete_video":
+				if (data.sender != userSessionid) {
+					let playlist = document.getElementById("video_list");
+					let videoDOM = playlist.children[data.videoIndex-1];
+					videoDOM.remove(); 
+				};
+				break;
 			case "play/pause":
 				flag = data.side === "pause" ? "pause" : "play";
 				if (data.sender != userSessionid)
@@ -702,6 +709,12 @@ else {
 	};
 
 	function deleteDOMVideoInPlayList(videoDOM) {
+		let videoIndex = getNumberVideoInPlaylist(videoDOM);
+		socket.send(JSON.stringify({
+			'type': "delete_video",
+			'videoIndex': videoIndex,
+			'sender': userSessionid
+		}));
 		videoDOM.remove();
 	};
 
@@ -761,15 +774,14 @@ else {
 	};
 
 	function getNumberVideoInPlaylist(videoDOM) {
-		let playlist = videoDOM.parentNode;
+		let playlist = document.getElementById("video_list");
 		let number = 0;
 		for(let i = 0; i < playlist.children.length; i++) {
 			number++;
-
 			if(playlist.children[i] === videoDOM) {
 				return number;
-			}
-		}
+			};
+		};
 	};
 
 	function checkPermissions() {
