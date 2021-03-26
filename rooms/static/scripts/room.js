@@ -200,6 +200,13 @@ else {
 		switch (data.type) {
 			case "chat_message":
 				addMessageToChatArea(data.message, data.color, data.author);
+				let btnChatDOM = document.getElementById("btnChat")
+				if (btnChatDOM.className == "nohide") {
+					let chatNotifyDOM = btnChatDOM.children[0];
+					let notifyNumber = parseInt(chatNotifyDOM.textContent) + 1;
+					chatNotifyDOM.textContent = "+" + notifyNumber;
+					chatNotifyDOM.className += " visible";
+				};
 				break;
 			case "update_user_counter":
 				switch (data.flag) {
@@ -225,11 +232,19 @@ else {
 					catch (e) {
 						var currentPlayerState = 1;
 					}
-					if (currentPlayerState != 0)
+					if (currentPlayerState != 0) {
 						addVideoInPlaylist(data.userNickname, 
 							videoId, 
 							data.videoTitle
 						)
+						let btnPlaylistDOM = document.getElementById("btnPlaylist")
+						if (btnPlaylistDOM.className == "nohide") {
+							let playlistNotifyDOM = btnPlaylistDOM.children[0];
+							let notifyNumber = parseInt(playlistNotifyDOM.textContent) + 1;
+							playlistNotifyDOM.textContent = "+" + notifyNumber;
+							playlistNotifyDOM.className += " visible";
+						};
+					}
 					else {
 						player.loadVideoById(videoId, 0);
 						document.getElementById("videoTitle").textContent = data.videoTitle;
@@ -535,12 +550,20 @@ else {
 		deleteAllClassForPanel();
 		changeClass("btnPlaylist", "tab_selected");
 		changeClass("video_playlist", "tab_visible");
+		let btnPlaylistDOM = document.getElementById("btnPlaylist")
+		let playlistNotifyDOM = btnPlaylistDOM.children[0];
+		playlistNotifyDOM.textContent = 0;
+		playlistNotifyDOM.classList.remove("visible");
 	};
 	
 	function clickChat() {
 		deleteAllClassForPanel();
 		changeClass("btnChat", "tab_selected");
 		changeClass("chat_tab", "tab_visible");
+		let btnChatDOM = document.getElementById("btnChat")
+		let chatNotifyDOM = btnChatDOM.children[0];
+		chatNotifyDOM.textContent = 0;
+		chatNotifyDOM.classList.remove("visible");
 	};
 	
 	function deleteAllClassForPanel() {
