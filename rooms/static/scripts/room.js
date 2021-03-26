@@ -230,21 +230,30 @@ else {
 							videoId, 
 							data.videoTitle
 						)
-					else
+					else {
 						player.loadVideoById(videoId, 0);
+						document.getElementById("videoTitle").textContent = data.videoTitle;
+					};
 				}
 				else {
 					videoPlayerHandler(videoId=videoId, flag="start");
+					document.getElementById("videoTitle").textContent = data.videoTitle;
 				}
 				break;
 			case "next_video":
 				let videoList = document.getElementById("video_list");
 				let nextVideo = videoList.firstChild;
 				if (nextVideo) {
-					let nextVideoId = nextVideo.id.split('_!')[0];
+					let nextVideoId = nextVideo.id;
+					let nextVideoTitle = nextVideo.children[1].textContent;
 					nextVideo.remove();
 					player.loadVideoById(nextVideoId, 0);
-				}
+					document.getElementById("videoTitle").textContent = nextVideoTitle;
+					if (!videoList.children.length) {
+						let elementTab = document.getElementById("noplaylist");
+						elementTab.className += " visible";
+					};
+				};
 				break;
 			case "delete_video":
 				if (data.sender != userSessionid) {

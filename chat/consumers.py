@@ -135,7 +135,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 					"current_time": text_data_json["time"]
 				})
 			except KeyError as ex:
-				print(ex)
+				print(f"KeyError {ex}")
 
 		elif message_type == "get_player_config":
 			player_config = self.r.hmget(f"player_{self.room_name}", "state", "current_time")
