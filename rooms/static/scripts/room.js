@@ -629,7 +629,7 @@ else {
 		};
 	};
 	
-	function setInfoInSearchResult(id, channel, title, preview) {
+	function setInfoInSearchResult(id, channel, title) {
 		document.querySelector(".search_result").id = id;
 		document.querySelector("#preview_img").src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;;
 		document.querySelector(".title").textContent = title;
