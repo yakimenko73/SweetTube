@@ -250,8 +250,8 @@ else {
 					player.loadVideoById(nextVideoId, 0);
 					document.getElementById("videoTitle").textContent = nextVideoTitle;
 					if (!videoList.children.length) {
-						let elementTab = document.getElementById("noplaylist");
-						elementTab.className += " visible";
+						let noPlaylistDOM = document.getElementById("noplaylist");
+						noPlaylistDOM.className += " visible";
 					};
 				};
 				break;
@@ -735,9 +735,9 @@ else {
 			if (message.match(regexp).length > 0)
 				return true;
 		}
-		catch {
-			return false;
-		}
+		catch(e) {
+			return false; 
+		};
 		
 	};
 

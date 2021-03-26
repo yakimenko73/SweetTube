@@ -1495,14 +1495,14 @@ main>aside {
 
 .chat .log {
 	width: 100%;
-	height: calc(100% - 30px);
-	box-sizing: border-box;
-	color: gray;
-	font-size: 14px;
-	overflow-y: auto;
-	overflow-x: hidden;
-	scrollbar-width: thin;
-	position: relative
+    height: calc(100% - 30px);
+    box-sizing: border-box;
+    color: gray;
+    font-size: 14px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    position: relative;
 }
 
 .log li {
