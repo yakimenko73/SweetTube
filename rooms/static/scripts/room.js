@@ -552,8 +552,8 @@ else {
 		changeClass("video_playlist", "tab_visible");
 		let btnPlaylistDOM = document.getElementById("btnPlaylist")
 		let playlistNotifyDOM = btnPlaylistDOM.children[0];
-		playlistNotifyDOM.textContent = 0;
 		playlistNotifyDOM.classList.remove("visible");
+		playlistNotifyDOM.textContent = 0;
 	};
 	
 	function clickChat() {
@@ -562,8 +562,8 @@ else {
 		changeClass("chat_tab", "tab_visible");
 		let btnChatDOM = document.getElementById("btnChat")
 		let chatNotifyDOM = btnChatDOM.children[0];
-		chatNotifyDOM.textContent = 0;
 		chatNotifyDOM.classList.remove("visible");
+		chatNotifyDOM.textContent = 0;
 	};
 	
 	function deleteAllClassForPanel() {
