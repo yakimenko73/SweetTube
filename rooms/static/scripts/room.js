@@ -260,7 +260,7 @@ else {
 				let nextVideo = videoList.firstChild;
 				if (nextVideo) {
 					let nextVideoId = nextVideo.id;
-					let nextVideoTitle = nextVideo.children[1].textContent;
+					let nextVideoTitle = nextVideo.children[1].children[0].textContent;
 					nextVideo.remove();
 					player.loadVideoById(nextVideoId, 0);
 					document.getElementById("videoTitle").textContent = nextVideoTitle;
