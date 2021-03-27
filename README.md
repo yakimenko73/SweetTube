@@ -1,7 +1,3 @@
-# SweetTube
-Welcome to the SweetTube repository for GitHub. In this repository, SweetTube presents the code and configuration used to implement the YouTube video sharing project.
-
-
 # Contributions
 We welcome contributions and pull requests to this repo; give us feedback.
 
