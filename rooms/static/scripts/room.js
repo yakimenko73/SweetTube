@@ -422,7 +422,7 @@ else {
 
 	function setEventForCheckboxes() {
 		// g - guest, m - moderator, o - owner
-		let listRoles = [ "g", "m", "o" ];
+		let listRoles = [ "g", "m" ];
 		let list_types = [ "add", "remove", "move", "play", "seek", "skip", "chat", "kick" ];
 	
 		for(let role = 0; role < listRoles.length; role++) {
@@ -779,19 +779,19 @@ else {
 	};
 
 	function getPlaylistOptionHTML() {
-		// let html = 
-		// `<div class='playlist_video_options' style= 'display: block'>
-		// 	<div class= 'playlist_options_left' style= 'display: block'>
-		// 		<div class = 'playlist_btn_up playlist_btn_arrow'></div>
-		// 		<div class = 'playlist_btn_down playlist_btn_arrow'></div>
-		// 	</div>
-		// 	<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
-		// </div`
-
 		let html = 
 		`<div class='playlist_video_options' style= 'display: block'>
+			<div class= 'playlist_options_left' style= 'display: block'>
+				<div class = 'playlist_btn_up playlist_btn_arrow'></div>
+				<div class = 'playlist_btn_down playlist_btn_arrow'></div>
+			</div>
 			<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
 		</div`
+
+		// let html = 
+		// `<div class='playlist_video_options' style= 'display: block'>
+		// 	<div class = 'playlist_btn_remove' style= 'display:block'>Remove</div>
+		// </div`
 		return html
 	};
 
