@@ -16,7 +16,7 @@ def generate_unique_code():
 
 class Room(models.Model):
 	""" Модель описания комнаты """
-	code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
+	code = models.CharField(max_length=9, default=generate_unique_code, unique=True)
 	host = models.CharField(max_length=50)
 	
 	moder_can_add = models.BooleanField(null=False, default=True)
