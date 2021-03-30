@@ -33,7 +33,7 @@ else {
 				'state': player.getPlayerState(),
 				'time': player.getCurrentTime()
 			})), 
-			1000
+			userStatus == "GU" ? 5000 : 1000 
 		)
 	};
 

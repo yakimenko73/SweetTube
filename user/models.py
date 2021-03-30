@@ -49,3 +49,6 @@ class User(models.Model):
 	user_color = models.CharField(max_length=40, default=generate_user_color)
 	room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='user_room')
 	session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='user_session')
+
+	def __str__(self):
+		return f"status: {self.user_status}, room: ({self.room}), session: {self.session}"

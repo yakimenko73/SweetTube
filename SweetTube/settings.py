@@ -25,6 +25,7 @@ CHANNEL_LAYERS = {
 ALLOWED_HOSTS = ['25.37.17.97', 
 	'25.75.93.216',
 	'127.0.0.1',
+	'26.164.236.133',
 ]
 
 # Application definition
